@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Découvrez Swis Brands, la référence des montres de luxe pour femmes au Maroc. Élégance, style et qualité supérieure. Livraison partout au Maroc.">
+    <meta name="keywords" content="montres femmes, luxe, maroc, swis brands, mode, accessoires, cadeaux, casablanca, rabat, marrakech">
+    <meta property="og:title" content="Swis Brands | Montres de Luxe pour Femmes">
+    <meta property="og:description" content="Élégance et raffinement pour la femme marocaine moderne. Découvrez notre nouvelle collection.">
+    <meta property="og:image" content="images/logo_swis_rm.png">
+    <meta property="og:url" content="https://swisbrands.ma">
     <title>Swis Brands | Montres de Luxe pour Femmes</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -105,7 +111,7 @@
         }
 
         /* Input Styles */
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             border-color: #D4AF37;
             ring: 2px solid #D4AF37;
             outline: none;
@@ -382,9 +388,9 @@
                     <button id="modal-add-btn" class="flex-1 bg-brand-black text-white py-4 rounded-lg uppercase tracking-widest font-bold hover:bg-brand-gold transition shadow-lg text-sm md:text-base">
                         Ajouter au Panier
                     </button>
-                    <a href="https://wa.me/212644824488" target="_blank" class="flex-none bg-green-100 text-green-600 p-4 rounded-lg hover:bg-green-200 transition flex items-center justify-center">
+                    <button id="modal-buy-now-btn" class="flex-none bg-green-100 text-green-600 p-4 rounded-lg hover:bg-green-200 transition flex items-center justify-center" title="Acheter maintenant">
                         <i class="fab fa-whatsapp text-2xl"></i>
-                    </a>
+                    </button>
                 </div>
                 
                 <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
@@ -418,8 +424,32 @@
                     <input type="tel" id="checkout-phone" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="06 XX XX XX XX">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Ville & Adresse / المدينة والعنوان</label>
-                    <input type="text" id="checkout-address" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Ex: Casablanca, Maarif...">
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Ville / المدينة</label>
+                    <select id="checkout-city" class="form-select w-full border border-gray-300 rounded-lg p-3 text-sm bg-white">
+                        <option value="">Choisir une ville...</option>
+                        <option value="Casablanca">Casablanca</option>
+                        <option value="Rabat">Rabat</option>
+                        <option value="Marrakech">Marrakech</option>
+                        <option value="Tanger">Tanger</option>
+                        <option value="Agadir">Agadir</option>
+                        <option value="Fès">Fès</option>
+                        <option value="Meknès">Meknès</option>
+                        <option value="Oujda">Oujda</option>
+                        <option value="Kenitra">Kenitra</option>
+                        <option value="Tetouan">Tetouan</option>
+                        <option value="Sale">Salé</option>
+                        <option value="Temara">Témara</option>
+                        <option value="Mohammedia">Mohammedia</option>
+                        <option value="El Jadida">El Jadida</option>
+                        <option value="Safi">Safi</option>
+                        <option value="Beni Mellal">Beni Mellal</option>
+                        <option value="Nador">Nador</option>
+                        <option value="Autre">Autre / Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Adresse / العنوان</label>
+                    <input type="text" id="checkout-address" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Ex: Quartier, Rue, N°...">
                 </div>
                 
                 <button onclick="finalizeOrder()" class="w-full bg-green-600 text-white py-4 mt-4 rounded-lg uppercase tracking-widest font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center gap-2">
@@ -691,7 +721,7 @@
                         Nouveau
                     </div>
                     <div class="relative overflow-hidden aspect-w-4 aspect-h-5 h-64 sm:h-80 bg-gray-100 mb-4">
-                        <img src="${product.image}" alt="${product.name}" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out transform group-hover:scale-110">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out transform group-hover:scale-110">
                     </div>
                     <div class="text-center px-4">
                         <h3 class="font-serif text-lg text-brand-black font-bold mb-1">${product.name}</h3>
@@ -709,7 +739,7 @@
             grid.innerHTML = productsToShow.map(product => `
                 <div class="product-card cursor-pointer group relative bg-white pb-2 md:pb-4 rounded-lg overflow-hidden hover:shadow-lg transition duration-300 border border-gray-100" onclick="openModal(${product.id}, 'collection')">
                     <div class="relative overflow-hidden aspect-w-1 aspect-h-1 h-40 md:h-80 bg-gray-100 mb-2 md:mb-4">
-                        <img src="${product.image}" alt="${product.name}" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out">
                         <div class="absolute inset-x-0 bottom-0 p-2 md:p-4 opacity-0 group-hover:opacity-100 transition duration-300 translate-y-4 group-hover:translate-y-0">
                             <span class="block w-full text-center bg-brand-black text-white py-2 md:py-3 uppercase text-[10px] md:text-xs tracking-widest shadow-lg rounded font-bold">
                                 Voir Détails
@@ -748,7 +778,7 @@
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-brand-rose/20 flex flex-col md:flex-row h-full md:h-80 relative group">
                     <div class="absolute top-4 left-4 z-10 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">PROMO -25%</div>
                     <div class="md:w-1/2 relative overflow-hidden cursor-pointer" onclick="openModal(${pack.id}, 'pack')">
-                        <img src="${pack.image}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="${pack.name}">
+                        <img src="${pack.image}" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="${pack.name}">
                     </div>
                     <div class="md:w-1/2 p-8 flex flex-col justify-center text-left">
                         <h3 class="font-serif text-2xl font-bold text-brand-black mb-1 cursor-pointer" onclick="openModal(${pack.id}, 'pack')">${pack.name}</h3>
@@ -839,6 +869,13 @@
             addBtn.onclick = function() {
                 addToCart(product.id, type);
                 closeModal();
+            };
+
+            const buyBtn = document.getElementById('modal-buy-now-btn');
+            buyBtn.onclick = function() {
+                addToCart(product.id, type);
+                closeModal();
+                openCheckoutModal();
             };
 
             const modal = document.getElementById('product-modal');
@@ -998,9 +1035,10 @@
         function finalizeOrder() {
             const name = document.getElementById('checkout-name').value;
             const phone = document.getElementById('checkout-phone').value;
+            const city = document.getElementById('checkout-city').value;
             const address = document.getElementById('checkout-address').value;
 
-            if (!name || !phone || !address) {
+            if (!name || !phone || !city || !address) {
                 alert("Merci de remplir toutes les informations / المرجو ملء جميع المعلومات");
                 return;
             }
@@ -1010,6 +1048,7 @@
             msg += `--------------------------------\n`;
             msg += `👤 *Client:* ${name}\n`;
             msg += `📱 *Tel:* ${phone}\n`;
+            msg += `🏙️ *Ville:* ${city}\n`;
             msg += `📍 *Adresse:* ${address}\n`;
             msg += `--------------------------------\n\n`;
             msg += `*ARTICLES:*\n`;
@@ -1026,7 +1065,8 @@
             closeCheckoutModal();
             
             // Send to WhatsApp
-            window.open(`https://wa.me/${phoneNum}?text=${encodeURIComponent(msg)}`, '_blank');
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNum}&text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         // Initialize
