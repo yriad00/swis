@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swis Brands | Montres de Luxe pour Femmes</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#D4AF37',
+                            goldLight: '#F3E5AB',
+                            black: '#1a1a1a',
+                            light: '#f9f9f9',
+                            rose: '#E6C0C0',
+                            red: '#C41E3A'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Poppins', 'sans-serif'],
+                        arabic: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 4px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+        
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* Variant Selection Styles */
+        .variant-option {
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .variant-option.selected {
+            border-color: #D4AF37;
+            transform: scale(1.1);
+        }
+        
+        /* New Badge Animation */
+        .badge-pulse {
+            animation: pulse-badge 2s infinite;
+        }
+        @keyframes pulse-badge {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+
+        /* Input Styles */
+        .form-input:focus {
+            border-color: #D4AF37;
+            ring: 2px solid #D4AF37;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+    </style>
+</head>
+<body class="font-sans text-brand-black bg-white antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-24">
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-2xl focus:outline-none" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Logo -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none flex-shrink-0 flex items-center md:flex-1">
+                <a href="#" class="flex flex-col items-center">
+                 <div class="flex flex-col items-center">
+                     <img src="images/logo_swis_rm.png" id="logo-img-nav" alt="Swis Brands Logo" class="h-28 md:h-28 w-auto object-contain">
+                 </div>
+                </a>
+            </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#home" class="text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium">Accueil</a>
+                    <a href="#new-arrivals" class="text-sm uppercase tracking-widest text-brand-black font-bold border-b-2 border-brand-gold pb-1">Nouveautés</a>
+                    <a href="#new-year" class="text-sm uppercase tracking-widest text-brand-red hover:text-brand-black transition font-bold">Nouvel An 🎉</a>
+                    <a href="#promo-packs" class="text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium">Packs Promo</a>
+                    <a href="#collection" class="text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium">Collection</a>
+                </div>
+
+                <!-- Icons -->
+                <div class="flex items-center space-x-6">
+                    <button class="relative hover:text-brand-gold transition" onclick="toggleCart()">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-brand-gold text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-0 transition-transform duration-200">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 absolute w-full shadow-lg">
+            <a href="#home" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Accueil <span class="font-arabic float-right text-gray-400 text-xs">الرئيسية</span></a>
+            <a href="#new-arrivals" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-gold font-bold">Nouveautés <span class="font-arabic float-right text-brand-gold text-xs">وصل حديثاً</span></a>
+            <a href="#new-year" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-red font-bold">Nouvel An 2025 <span class="font-arabic float-right text-brand-red text-xs">عروض رأس السنة</span></a>
+            <a href="#promo-packs" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Packs Promo <span class="font-arabic float-right text-gray-400 text-xs">تخفيضات</span></a>
+            <a href="#collection" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Collection <span class="font-arabic float-right text-gray-400 text-xs">التشكيلة</span></a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="images/IMG-20251118-WA0073.jpg" alt="Luxury Watch" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        </div>
+
+        <div class="relative z-10 text-center text-white px-4 fade-in max-w-3xl mx-auto">
+            <p class="text-brand-gold uppercase tracking-[0.3em] mb-4 text-sm font-semibold">Nouvelle Collection 2025</p>
+            <h1 class="text-5xl md:text-7xl font-serif font-bold mb-2">JUST WATCH ME</h1>
+            <h2 class="text-3xl md:text-4xl font-arabic font-bold mb-6 text-gray-100">أناقتك، في كل دقيقة</h2>
+            <p class="text-lg font-light mb-10 text-gray-200">Découvrez l'élégance du savoir-faire marocain allié à la précision suisse.</p>
+            <a href="#collection" class="inline-block bg-white text-brand-black px-10 py-4 uppercase tracking-widest font-bold hover:bg-brand-gold hover:text-white transition duration-300">
+                Acheter Maintenant
+            </a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-16 bg-brand-light">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="p-6 bg-white shadow-sm rounded-lg hover:shadow-md transition">
+                <i class="fas fa-shipping-fast text-4xl text-brand-gold mb-4"></i>
+                <h3 class="font-serif text-xl mb-1">Livraison Gratuite</h3>
+                <p class="font-arabic text-brand-black text-lg mb-2">توصيل مجاني</p>
+            </div>
+            <div class="p-6 bg-white shadow-sm rounded-lg hover:shadow-md transition">
+                <i class="fas fa-hand-holding-dollar text-4xl text-brand-gold mb-4"></i>
+                <h3 class="font-serif text-xl mb-1">Paiement à la Livraison</h3>
+                <p class="font-arabic text-brand-black text-lg mb-2">الدفع عند الاستلام</p>
+            </div>
+            <div class="p-6 bg-white shadow-sm rounded-lg hover:shadow-md transition">
+                <i class="fas fa-gem text-4xl text-brand-gold mb-4"></i>
+                <h3 class="font-serif text-xl mb-1">Qualité Premium</h3>
+                <p class="font-arabic text-brand-black text-lg mb-2">جودة عالية</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: NEW ARRIVALS (NOUVEAUTÉS) -->
+    <section id="new-arrivals" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <span class="text-brand-gold font-bold tracking-widest uppercase text-sm">Sal3a Jdida</span>
+                <h2 class="text-4xl font-serif font-bold mb-2">Nouveautés</h2>
+                <p class="font-arabic text-xl text-gray-500">وصل حديثاً</p>
+                <div class="h-1 w-20 bg-brand-black mx-auto mt-4"></div>
+            </div>
+
+            <div id="new-arrivals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: NEW YEAR COLLECTION (RASS SANA) -->
+    <section id="new-year" class="py-20 bg-brand-black text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold opacity-10 rounded-full transform translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-gold opacity-5 rounded-full transform -translate-x-1/2 translate-y-1/2"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2 text-center md:text-left">
+                    <span class="inline-block py-1 px-3 border border-brand-gold text-brand-gold text-xs tracking-widest uppercase mb-4 rounded-full animate-pulse">Offre Limitée</span>
+                    <h2 class="text-4xl md:text-6xl font-serif font-bold mb-4 text-brand-goldLight">Promo 2025</h2>
+                    <h3 class="text-3xl md:text-4xl font-arabic font-bold mb-6 text-white">تألقي في السنة الجديدة</h3>
+                    <p class="text-gray-300 mb-8 leading-relaxed">
+                        Le compte à rebours a commencé ! Profitez de nos offres exceptionnelles sur les coffrets cadeaux avant la fin de l'année.
+                    </p>
+                    
+                    <!-- FUNCTIONAL COUNTDOWN -->
+                    <div class="flex justify-center md:justify-start gap-4 mb-8 font-mono">
+                        <div class="text-center">
+                            <div id="days" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
+                            <span class="text-xs text-gray-400 mt-1">Jours</span>
+                        </div>
+                        <div class="text-center">
+                            <div id="hours" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
+                            <span class="text-xs text-gray-400 mt-1">Heures</span>
+                        </div>
+                        <div class="text-center">
+                            <div id="minutes" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
+                            <span class="text-xs text-gray-400 mt-1">Min</span>
+                        </div>
+                        <div class="text-center">
+                            <div id="seconds" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
+                            <span class="text-xs text-gray-400 mt-1">Sec</span>
+                        </div>
+                    </div>
+
+                    <!-- Button linked to Promo Packs -->
+                    <a href="#promo-packs" class="inline-block bg-brand-gold text-brand-black px-10 py-4 uppercase tracking-widest font-bold hover:bg-white transition duration-300 rounded shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                        Voir les Promos <span class="font-arabic ml-2">شوفي الهوتة</span>
+                    </a>
+                </div>
+                
+                <div class="md:w-1/2 relative">
+                    <div class="absolute inset-0 border-2 border-brand-gold transform translate-x-4 translate-y-4 rounded-lg"></div>
+                    <img src="https://images.unsplash.com/photo-1594539655823-74d32646c243?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="New Year Watch" class="relative rounded-lg shadow-2xl w-full object-cover h-[500px]">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: PROMO PACKS -->
+    <section id="promo-packs" class="py-20 bg-gray-50 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <span class="text-brand-red font-bold tracking-widest uppercase text-sm">Offres Spéciales</span>
+                <h2 class="text-4xl font-serif font-bold mb-2">Coffrets Cadeaux</h2>
+                <p class="font-arabic text-xl text-gray-500">باكات و هدايا حصرية</p>
+                <div class="h-1 w-20 bg-brand-red mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="packs-container">
+                <!-- Packs rendered by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Collection -->
+    <section id="collection" class="py-20 max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-serif font-bold mb-2">Notre Collection</h2>
+            <p class="font-arabic text-xl text-gray-500 mb-4">اكتشفي تشكيلتنا الجديدة</p>
+            <div class="h-1 w-20 bg-brand-gold mx-auto"></div>
+        </div>
+
+        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8 mb-12">
+            <!-- Products will be inserted here by JS -->
+        </div>
+
+        <div class="text-center">
+            <button id="load-more-btn" class="border-2 border-brand-black text-brand-black px-10 py-3 uppercase tracking-widest font-bold hover:bg-brand-black hover:text-white transition duration-300">
+                Voir Plus <span class="font-arabic ml-2">المزيد</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="h-full flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-brand-black text-white">
+                <div>
+                    <h2 class="font-serif text-xl">Mon Panier</h2>
+                    <p class="font-arabic text-xs text-gray-400">سلة المشتريات</p>
+                </div>
+                <button onclick="toggleCart()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-between mb-4 font-bold text-lg">
+                    <span>Total / المجموع</span>
+                    <span id="cart-total">0.00 MAD</span>
+                </div>
+                <!-- Changed onclick to openCheckoutModal -->
+                <button onclick="openCheckoutModal()" class="w-full bg-green-600 text-white py-4 uppercase tracking-widest font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 rounded-lg shadow-lg">
+                    <i class="fab fa-whatsapp text-2xl"></i> 
+                    <div class="text-left leading-tight">
+                        <span class="block text-xs">Commander via</span>
+                        <span class="block font-bold">WhatsApp</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden fade-in"></div>
+
+    <!-- PRODUCT DETAILS MODAL (POPUP) -->
+    <div id="product-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black bg-opacity-70" onclick="closeModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="modal-content bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto md:overflow-visible">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-white rounded-full p-2 shadow-md hover:text-brand-red transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+
+            <!-- Image Side -->
+            <div class="md:w-1/2 bg-gray-100 relative h-64 md:h-auto">
+                <img id="modal-image" src="" alt="Watch Detail" class="w-full h-full object-cover transition duration-500">
+                <div class="absolute bottom-4 left-4 bg-white px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full shadow-sm">
+                    Swis Brands Original
+                </div>
+            </div>
+
+            <!-- Details Side -->
+            <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto">
+                <div>
+                    <span id="modal-category" class="text-brand-gold font-bold uppercase tracking-widest text-xs mb-2 block">Category</span>
+                    <h2 id="modal-title" class="text-2xl md:text-3xl font-serif font-bold text-brand-black mb-1">Product Title</h2>
+                    <h3 id="modal-arabic" class="text-lg md:text-xl font-arabic text-gray-500 mb-4">اسم المنتج</h3>
+                    
+                    <p class="text-sm md:text-base text-gray-600 mb-6 leading-relaxed">
+                        Cette montre incarne l'élégance intemporelle. Dotée d'un mouvement de précision et d'un design sophistiqué, elle est l'accessoire parfait.
+                        <br><span class="font-arabic text-xs md:text-sm text-gray-500 mt-2 block">ساعة أنيقة بتصميم عصري وجودة عالية.</span>
+                    </p>
+
+                    <!-- VARIANT SELECTION (COLOR) -->
+                    <div id="variant-section" class="mb-8 hidden">
+                        <label class="block text-xs font-bold uppercase tracking-widest text-brand-black mb-3">
+                            Couleur / اللون: <span id="selected-variant-name" class="text-brand-gold ml-1"></span>
+                        </label>
+                        <div id="variant-options" class="flex flex-wrap gap-3">
+                            <!-- Variants injected here by JS -->
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 mb-8">
+                        <span id="modal-price" class="text-3xl md:text-4xl font-bold text-brand-black">000 DH</span>
+                        <span id="modal-old-price" class="text-lg md:text-xl text-gray-400 line-through hidden">000 DH</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-auto">
+                    <button id="modal-add-btn" class="flex-1 bg-brand-black text-white py-4 rounded-lg uppercase tracking-widest font-bold hover:bg-brand-gold transition shadow-lg text-sm md:text-base">
+                        Ajouter au Panier
+                    </button>
+                    <a href="https://wa.me/212644824488" target="_blank" class="flex-none bg-green-100 text-green-600 p-4 rounded-lg hover:bg-green-200 transition flex items-center justify-center">
+                        <i class="fab fa-whatsapp text-2xl"></i>
+                    </a>
+                </div>
+                
+                <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                    <span class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-1"></i> En Stock</span>
+                    <span class="flex items-center"><i class="fas fa-truck mr-1"></i> Livraison 24h/48h</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- *** CHECKOUT MODAL (NEW) *** -->
+    <div id="checkout-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-70" onclick="closeCheckoutModal()"></div>
+        <div class="modal-content bg-white w-full max-w-md rounded-2xl shadow-2xl relative z-10 p-8">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <div class="text-center mb-6">
+                <h2 class="font-serif text-2xl font-bold text-brand-black mb-2">Finaliser la Commande</h2>
+                <p class="text-gray-500 text-sm font-arabic">أكملي المعلومات للطلب</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Nom Complet / الاسم الكامل</label>
+                    <input type="text" id="checkout-name" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Votre nom...">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Téléphone / الهاتف</label>
+                    <input type="tel" id="checkout-phone" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="06 XX XX XX XX">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Ville & Adresse / المدينة والعنوان</label>
+                    <input type="text" id="checkout-address" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Ex: Casablanca, Maarif...">
+                </div>
+                
+                <button onclick="finalizeOrder()" class="w-full bg-green-600 text-white py-4 mt-4 rounded-lg uppercase tracking-widest font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center gap-2">
+                    <span>Confirmer sur WhatsApp</span>
+                    <i class="fab fa-whatsapp text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-brand-black text-white py-16 border-t-4 border-brand-gold">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+            <div class="flex flex-col items-center md:items-start">
+                 <img src="/images/Gemini_Generated_Image_82jog382jog382jo.png" id="logo-img-footer" alt="Swis Brands Logo" class="h-20 w-auto object-contain mb-6 bg-white p-2 rounded">
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                    Swis Brands est plus qu'une montre. C'est une déclaration d'élégance pour la femme marocaine moderne.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-serif text-lg mb-6 text-brand-gold uppercase tracking-widest">Contactez-nous</h4>
+                <ul class="space-y-4 text-gray-400 text-sm">
+                    <li class="flex items-center justify-center md:justify-start hover:text-brand-gold transition cursor-pointer">
+                        <i class="fab fa-whatsapp mr-3 text-brand-gold"></i> +212 644-824488
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-serif text-lg mb-6 text-brand-gold uppercase tracking-widest">Suivez-nous</h4>
+                <div class="flex space-x-4 justify-center md:justify-start">
+                    <a href="#" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-gold hover:text-white transition transform hover:-translate-y-1">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-600 text-xs">
+            &copy; 2025 Swis Brands. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-brand-black text-white px-6 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-[80] flex items-center gap-2 w-max">
+        <i class="fas fa-check-circle text-green-500"></i>
+        <span>Ajouté au panier!</span>
+    </div>
+
+    <script>
+        // --- DATA ---
+        
+        // 1. New Arrivals Data
+        const newArrivals = [
+            {
+                id: 201,
+                name: "Eclat Lunaire",
+                arabicName: "إكلا لونير",
+                price: 149, 
+                oldPrice: 399,
+                image: "/images/image_1.jpg",
+                category: "Nouveau",
+                variants: []
+            },
+            {
+                id: 202,
+                name: "Soleil Royal",
+                arabicName: "سولاي رويال",
+                price: 149, 
+                oldPrice: 399,
+                image: "/images/iamge_2.jpg",
+                category: "Nouveau",
+                variants: []
+            },
+            {
+                id: 203,
+                name: "Diamant Noir",
+                arabicName: "ديامون نوار",
+                price: 149, 
+                oldPrice: 399,
+                image: "/images/image_3.jpg",
+                category: "Nouveau",
+                variants: []
+            }
+        ];
+
+        // 2. Main Collection Data
+        const allProducts = [
+            { 
+                id: 1, 
+                name: "Royal Rose Gold", 
+                arabicName: "رويال روز جولد", 
+                price: 249, 
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0071.jpg", 
+                category: "Classique",
+                variants: [
+                    
+                    { name: "Silver", image: "/images/IMG-20251111-WA0005.jpg", color: "#E0E0E0" },
+                    { name: "Gold", image: "/images/IMG-20251118-WA0071.jpg", color: "#D4AF37" }
+                ]
+            },
+            { 
+                id: 2, 
+                name: "Midnight Elegance", 
+                arabicName: "ميدنايت إليجانس", 
+                price: 249,
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0074.jpg", 
+                category: "Moderne",
+                variants: [
+                  
+                    { name: "Blue Navy", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#000080" }
+                ]
+            },
+            { 
+                id: 3, 
+                name: "Silver Minimalist", 
+                arabicName: "سيلفر مينيماليست", 
+                price: 249,
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0075.jpg", 
+                category: "Bureau",
+                variants: [
+                    
+                    { name: "White/Silver", image: "https://images.unsplash.com/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#FFFFFF" }
+                ] 
+            },
+            { 
+                id: 4, 
+                name: "Golden Hour", 
+                arabicName: "جولدن آور", 
+                price: 249,
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0070.jpg", 
+                category: "Luxe",
+                variants: [
+                    { name: "Gold", image: "https://images.unsplash.com/photo-1596765275069-7c157f493c04?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#D4AF37" }
+                ]
+            },
+            { 
+                id: 5, 
+                name: "Pearl White", 
+                arabicName: "بيرل وايت", 
+                price: 249,
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0065.jpg", 
+                category: "Chic",
+                variants: [
+                    { name: "White", image: "https://images.unsplash.com/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#ffffff" },
+                    { name: "Pink", image: "https://images.unsplash.com/photo-1517502474097-f9b30659dadb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#ffc0cb" }
+                ]
+            },
+            { 
+                id: 6, 
+                name: "Obsidian Black", 
+                arabicName: "أوبسيديان بلاك", 
+                price: 249,
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0072.jpg", 
+                category: "Soirée",
+                 variants: [
+                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
+                ]
+            },
+             { 
+                id: 7, 
+                name: "Obsidian Black", 
+                arabicName: "أوبسيديان بلاك", 
+                price: 249,
+                oldPrice: 499,
+                image: "/images/IMG-20251118-WA0103.jpg", 
+                category: "Soirée",
+                 variants: [
+                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
+                ]
+            },
+             { 
+                id: 8, 
+                name: "Obsidian Black", 
+                arabicName: "أوبسيديان بلاك", 
+                price: 199,
+                oldPrice: 399,
+                image: "/images/IMG-20251118-WA0067.jpg", 
+                category: "Soirée",
+                 variants: [
+                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
+                ]
+            },
+             { 
+                id: 9, 
+                name: "Obsidian Black", 
+                arabicName: "أوبسيديان بلاك", 
+                price: 199,
+                oldPrice: 399,
+                image: "/images/IMG-20251118-WA0069.jpg", 
+                category: "Soirée",
+                 variants: [
+                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
+                ]
+            },
+              { 
+                id: 10, 
+                name: "Obsidian Black", 
+                arabicName: "أوبسيديان بلاك", 
+                price: 199,
+                oldPrice: 399,
+                image: "/images/IMG-20251118-WA0066.jpg", 
+                category: "Soirée",
+                 variants: [
+                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
+                ]
+            },
+        ];
+
+        // 3. Packs Data
+        const promoPacks = [
+            {
+                id: 101,
+                name: "Pack Duo Luxe",
+                arabicName: "باك الفخامة",
+                description: "Montre Royal Gold + Bracelet Assorti",
+                oldPrice: 599,
+                newPrice: 449,
+                image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                category: "Pack Promo"
+            },
+            {
+                id: 102,
+                name: "Coffret Cadeau Doré",
+                arabicName: "صندوق هدايا ذهبي",
+                description: "Montre + Collier + Bague",
+                oldPrice: 699,
+                newPrice: 499,
+                image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                category: "Pack Promo"
+            }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('swisCart')) || [];
+        let visibleProducts = 4;
+        let currentSelectedVariant = null; 
+
+        // --- COUNTDOWN ---
+        function startCountdown() {
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + 3); 
+            const timer = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = endDate - now;
+                if (distance < 0) { clearInterval(timer); return; }
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("days").innerHTML = days < 10 ? "0" + days : days;
+                document.getElementById("hours").innerHTML = hours < 10 ? "0" + hours : hours;
+                document.getElementById("minutes").innerHTML = minutes < 10 ? "0" + minutes : minutes;
+                document.getElementById("seconds").innerHTML = seconds < 10 ? "0" + seconds : seconds;
+            }, 1000);
+        }
+
+        // --- RENDER FUNCTIONS ---
+        
+        // 1. New Arrivals
+        function renderNewArrivals() {
+            const grid = document.getElementById('new-arrivals-grid');
+            grid.innerHTML = newArrivals.map(product => `
+                <div class="product-card cursor-pointer group relative bg-white pb-4 rounded-xl overflow-hidden hover:shadow-2xl transition duration-300 border border-gray-100" onclick="openModal(${product.id}, 'new')">
+                    <div class="absolute top-4 left-4 z-10 bg-brand-black text-brand-gold text-[10px] font-bold px-3 py-1 rounded-full badge-pulse uppercase tracking-widest border border-brand-gold">
+                        Nouveau
+                    </div>
+                    <div class="relative overflow-hidden aspect-w-4 aspect-h-5 h-64 sm:h-80 bg-gray-100 mb-4">
+                        <img src="${product.image}" alt="${product.name}" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out transform group-hover:scale-110">
+                    </div>
+                    <div class="text-center px-4">
+                        <h3 class="font-serif text-lg text-brand-black font-bold mb-1">${product.name}</h3>
+                        <p class="font-arabic text-sm text-gray-400 mb-2">${product.arabicName}</p>
+                        <p class="text-brand-gold font-bold text-xl">${product.price} DH</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 2. Main Products
+        function renderProducts() {
+            const productsToShow = allProducts.slice(0, visibleProducts);
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = productsToShow.map(product => `
+                <div class="product-card cursor-pointer group relative bg-white pb-2 md:pb-4 rounded-lg overflow-hidden hover:shadow-lg transition duration-300 border border-gray-100" onclick="openModal(${product.id}, 'collection')">
+                    <div class="relative overflow-hidden aspect-w-1 aspect-h-1 h-40 md:h-80 bg-gray-100 mb-2 md:mb-4">
+                        <img src="${product.image}" alt="${product.name}" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out">
+                        <div class="absolute inset-x-0 bottom-0 p-2 md:p-4 opacity-0 group-hover:opacity-100 transition duration-300 translate-y-4 group-hover:translate-y-0">
+                            <span class="block w-full text-center bg-brand-black text-white py-2 md:py-3 uppercase text-[10px] md:text-xs tracking-widest shadow-lg rounded font-bold">
+                                Voir Détails
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-center px-2 md:px-4">
+                        <p class="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1 truncate">${product.category}</p>
+                        <h3 class="font-serif text-sm md:text-lg text-brand-black mb-0 truncate">${product.name}</h3>
+                        <p class="font-arabic text-xs md:text-sm text-gray-500 mb-1 md:mb-2 truncate">${product.arabicName}</p>
+                        
+                        <!-- Price Block -->
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                             ${product.oldPrice ? `<span class="text-gray-400 line-through text-xs md:text-sm">${product.oldPrice} DH</span>` : ''}
+                             <p class="text-brand-gold font-bold text-base md:text-xl">${product.price} DH</p>
+                        </div>
+
+                        ${product.variants && product.variants.length > 1 ? 
+                            `<div class="flex justify-center gap-1 mt-1 md:mt-2">
+                                ${product.variants.map(v => `<div class="w-2 h-2 md:w-3 md:h-3 rounded-full border border-gray-200" style="background-color: ${v.color}"></div>`).join('')}
+                             </div>` : ''
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            if (visibleProducts >= allProducts.length) {
+                document.getElementById('load-more-btn').style.display = 'none';
+            }
+        }
+
+        // 3. Packs
+        function renderPacks() {
+            const container = document.getElementById('packs-container');
+            container.innerHTML = promoPacks.map(pack => `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-brand-rose/20 flex flex-col md:flex-row h-full md:h-80 relative group">
+                    <div class="absolute top-4 left-4 z-10 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">PROMO -25%</div>
+                    <div class="md:w-1/2 relative overflow-hidden cursor-pointer" onclick="openModal(${pack.id}, 'pack')">
+                        <img src="${pack.image}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="${pack.name}">
+                    </div>
+                    <div class="md:w-1/2 p-8 flex flex-col justify-center text-left">
+                        <h3 class="font-serif text-2xl font-bold text-brand-black mb-1 cursor-pointer" onclick="openModal(${pack.id}, 'pack')">${pack.name}</h3>
+                        <h4 class="font-arabic text-lg text-gray-500 mb-3">${pack.arabicName}</h4>
+                        <p class="text-sm text-gray-600 mb-4">${pack.description}</p>
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-gray-400 line-through text-lg">${pack.oldPrice} DH</span>
+                            <span class="text-brand-red font-bold text-3xl">${pack.newPrice} DH</span>
+                        </div>
+                        <button onclick="addToCart(${pack.id}, 'pack')" class="shimmer bg-brand-black text-white py-3 px-6 rounded-lg uppercase tracking-widest text-sm font-bold hover:bg-brand-gold transition shadow-lg w-full md:w-auto">
+                            Commander
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- MODAL & CART LOGIC ---
+
+        function findProduct(id, type) {
+            if (type === 'pack' || type === true) return promoPacks.find(p => p.id === id);
+            if (type === 'new') return newArrivals.find(p => p.id === id);
+            return allProducts.find(p => p.id === id);
+        }
+
+        function openModal(id, type = 'collection') {
+            const product = findProduct(id, type);
+            if (!product) return;
+
+            // Basic Info
+            document.getElementById('modal-title').textContent = product.name;
+            document.getElementById('modal-arabic').textContent = product.arabicName;
+            
+            // Logic for Price
+            let currentPrice = product.price;
+            let showOldPrice = false;
+            let oldPriceVal = 0;
+
+            if (type === 'pack' || type === true) {
+                currentPrice = product.newPrice;
+                if (product.oldPrice) {
+                    showOldPrice = true;
+                    oldPriceVal = product.oldPrice;
+                }
+            } else {
+                 if (product.oldPrice) {
+                    showOldPrice = true;
+                    oldPriceVal = product.oldPrice;
+                }
+            }
+            
+            document.getElementById('modal-price').textContent = currentPrice + ' DH';
+            document.getElementById('modal-category').textContent = product.category;
+
+            const oldPriceEl = document.getElementById('modal-old-price');
+            if (showOldPrice) {
+                oldPriceEl.textContent = oldPriceVal + ' DH';
+                oldPriceEl.classList.remove('hidden');
+            } else {
+                oldPriceEl.classList.add('hidden');
+            }
+
+            // Variant Logic
+            const variantSection = document.getElementById('variant-section');
+            const variantOptionsDiv = document.getElementById('variant-options');
+            currentSelectedVariant = null; 
+
+            if (product.variants && product.variants.length > 0) {
+                variantSection.classList.remove('hidden');
+                currentSelectedVariant = product.variants[0];
+                document.getElementById('modal-image').src = currentSelectedVariant.image;
+                document.getElementById('selected-variant-name').textContent = currentSelectedVariant.name;
+
+                variantOptionsDiv.innerHTML = product.variants.map((v, index) => `
+                    <div onclick="selectVariant(${id}, ${index}, '${type}')" 
+                         class="variant-option cursor-pointer rounded-lg overflow-hidden w-16 h-16 relative shadow-sm hover:shadow-md ${index === 0 ? 'selected' : ''}"
+                         title="${v.name}">
+                        <img src="${v.image}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition"></div>
+                    </div>
+                `).join('');
+            } else {
+                variantSection.classList.add('hidden');
+                document.getElementById('modal-image').src = product.image;
+            }
+
+            const addBtn = document.getElementById('modal-add-btn');
+            addBtn.onclick = function() {
+                addToCart(product.id, type);
+                closeModal();
+            };
+
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+        }
+
+        function selectVariant(productId, variantIndex, type) {
+            const product = findProduct(productId, type);
+            const variant = product.variants[variantIndex];
+            
+            currentSelectedVariant = variant;
+            
+            document.getElementById('modal-image').src = variant.image;
+            document.getElementById('selected-variant-name').textContent = variant.name;
+            
+            const options = document.querySelectorAll('.variant-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[variantIndex].classList.add('selected');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        // Add to Cart Logic
+        function addToCart(id, type = 'collection') {
+            const product = findProduct(id, type);
+            
+            const variantName = currentSelectedVariant ? currentSelectedVariant.name : "Standard";
+            const variantImage = currentSelectedVariant ? currentSelectedVariant.image : product.image;
+            
+            const finalPrice = (type === 'pack' || type === true) ? product.newPrice : product.price;
+
+            const cartItemId = `${product.id}-${variantName.replace(/\s+/g, '')}`;
+            const existingItem = cart.find(item => item.cartId === cartItemId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    cartId: cartItemId,
+                    id: product.id,
+                    name: product.name,
+                    variant: variantName,
+                    price: finalPrice,
+                    image: variantImage,
+                    quantity: 1
+                });
+            }
+
+            saveCart();
+            updateCartUI();
+            showToast(`Ajouté: ${product.name}`);
+            
+            const cartSidebar = document.getElementById('cart-sidebar');
+            if (cartSidebar.classList.contains('translate-x-full')) {
+                toggleCart();
+            }
+        }
+
+        function removeFromCart(cartId) {
+            cart = cart.filter(item => item.cartId !== cartId);
+            saveCart();
+            updateCartUI();
+        }
+
+        function updateQuantity(cartId, change) {
+            const item = cart.find(item => item.cartId === cartId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(cartId);
+                } else {
+                    saveCart();
+                    updateCartUI();
+                }
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('swisCart', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const countEl = document.getElementById('cart-count');
+            countEl.textContent = totalCount;
+            totalCount > 0 ? countEl.classList.remove('scale-0') : countEl.classList.add('scale-0');
+
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i class="fas fa-shopping-basket text-4xl mb-4 text-gray-300"></i><p>Votre panier est vide</p></div>`;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="flex items-center space-x-4 border-b pb-4 border-gray-100 last:border-0">
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded shadow-sm">
+                        <div class="flex-1">
+                            <h4 class="font-serif text-sm font-bold text-brand-black">${item.name}</h4>
+                            <p class="text-xs text-gray-500 mb-1">Color: ${item.variant}</p>
+                            <p class="text-xs text-brand-gold font-bold">${item.price} DH</p>
+                            <div class="flex items-center mt-2 space-x-2">
+                                <button onclick="updateQuantity('${item.cartId}', -1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">-</button>
+                                <span class="text-xs font-semibold w-4 text-center">${item.quantity}</span>
+                                <button onclick="updateQuantity('${item.cartId}', 1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">+</button>
+                            </div>
+                        </div>
+                        <div class="text-right flex flex-col justify-between h-16">
+                            <p class="font-bold text-sm">${item.price * item.quantity} DH</p>
+                            <button onclick="removeFromCart('${item.cartId}')" class="text-xs text-red-400 hover:text-red-600 transition underline"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cart-total').textContent = total + " DH";
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            sidebar.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').textContent = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        }
+
+        // --- CHECKOUT LOGIC (NEW) ---
+        
+        function openCheckoutModal() {
+            if (cart.length === 0) return showToast("Votre panier est vide!");
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+            
+            // Close Cart sidebar to focus on checkout
+            toggleCart();
+        }
+
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function finalizeOrder() {
+            const name = document.getElementById('checkout-name').value;
+            const phone = document.getElementById('checkout-phone').value;
+            const address = document.getElementById('checkout-address').value;
+
+            if (!name || !phone || !address) {
+                alert("Merci de remplir toutes les informations / المرجو ملء جميع المعلومات");
+                return;
+            }
+
+            const phoneNum = "212644824488";
+            let msg = `👋 *NOUVELLE COMMANDE / طلب جديد* \n`;
+            msg += `--------------------------------\n`;
+            msg += `👤 *Client:* ${name}\n`;
+            msg += `📱 *Tel:* ${phone}\n`;
+            msg += `📍 *Adresse:* ${address}\n`;
+            msg += `--------------------------------\n\n`;
+            msg += `*ARTICLES:*\n`;
+
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                msg += `▪️ ${item.name} (${item.variant}) x${item.quantity} - ${itemTotal} MAD\n`;
+                total += itemTotal;
+            });
+            msg += `\n💰 *TOTAL: ${total} MAD*`;
+            
+            // Close modal
+            closeCheckoutModal();
+            
+            // Send to WhatsApp
+            window.open(`https://wa.me/${phoneNum}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Initialize
+        document.getElementById('load-more-btn').addEventListener('click', () => {
+            visibleProducts += 4;
+            renderProducts();
+        });
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            window.scrollY > 50 ? nav.classList.add('shadow-md') : nav.classList.remove('shadow-md');
+        });
+
+        // Run
+        startCountdown();
+        renderProducts();
+        renderNewArrivals(); 
+        renderPacks();
+        updateCartUI();
+    </script>
+</body>
+</html>
