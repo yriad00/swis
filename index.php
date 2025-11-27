@@ -1,3 +1,6 @@
+<?php
+$settings = json_decode(file_get_contents('data/settings.json'), true);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,11 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Découvrez Swis Brands, la référence des montres de luxe pour femmes au Maroc. Élégance, style et qualité supérieure. Livraison partout au Maroc.">
     <meta name="keywords" content="montres femmes, luxe, maroc, swis brands, mode, accessoires, cadeaux, casablanca, rabat, marrakech">
-    <meta property="og:title" content="Swis Brands | Montres de Luxe pour Femmes">
+    <meta property="og:title" content="<?php echo htmlspecialchars($settings['site_title']); ?>">
     <meta property="og:description" content="Élégance et raffinement pour la femme marocaine moderne. Découvrez notre nouvelle collection.">
     <meta property="og:image" content="images/logo_swis_rm.png">
     <meta property="og:url" content="https://swisbrands.ma">
-    <title>Swis Brands | Montres de Luxe pour Femmes</title>
+    <title><?php echo htmlspecialchars($settings['site_title']); ?></title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -231,8 +234,8 @@
             <div class="flex flex-col md:flex-row items-center gap-12">
                 <div class="md:w-1/2 text-center md:text-left">
                     <span class="inline-block py-1 px-3 border border-brand-gold text-brand-gold text-xs tracking-widest uppercase mb-4 rounded-full animate-pulse">Offre Limitée</span>
-                    <h2 class="text-4xl md:text-6xl font-serif font-bold mb-4 text-brand-goldLight">Promo 2025</h2>
-                    <h3 class="text-3xl md:text-4xl font-arabic font-bold mb-6 text-white">تألقي في السنة الجديدة</h3>
+                    <h2 class="text-4xl md:text-6xl font-serif font-bold mb-4 text-brand-goldLight"><?php echo htmlspecialchars($settings['hero_title']); ?></h2>
+                    <h3 class="text-3xl md:text-4xl font-arabic font-bold mb-6 text-white"><?php echo htmlspecialchars($settings['hero_subtitle']); ?></h3>
                     <p class="text-gray-300 mb-8 leading-relaxed">
                         Le compte à rebours a commencé ! Profitez de nos offres exceptionnelles sur les coffrets cadeaux avant la fin de l'année.
                     </p>
@@ -498,194 +501,20 @@
     </div>
 
     <script>
+        <?php
+        $jsonData = file_get_contents('data/products.json');
+        $data = json_decode($jsonData, true);
+        ?>
         // --- DATA ---
         
         // 1. New Arrivals Data
-        const newArrivals = [
-            {
-                id: 201,
-                name: "Eclat Lunaire",
-                arabicName: "إكلا لونير",
-                price: 149, 
-                oldPrice: 399,
-                image: "/images/image_1.jpg",
-                category: "Nouveau",
-                variants: []
-            },
-            {
-                id: 202,
-                name: "Soleil Royal",
-                arabicName: "سولاي رويال",
-                price: 149, 
-                oldPrice: 399,
-                image: "/images/iamge_2.jpg",
-                category: "Nouveau",
-                variants: []
-            },
-            {
-                id: 203,
-                name: "Diamant Noir",
-                arabicName: "ديامون نوار",
-                price: 149, 
-                oldPrice: 399,
-                image: "/images/image_3.jpg",
-                category: "Nouveau",
-                variants: []
-            }
-        ];
+        const newArrivals = <?php echo json_encode($data['newArrivals']); ?>;
 
         // 2. Main Collection Data
-        const allProducts = [
-            { 
-                id: 1, 
-                name: "Royal Rose Gold", 
-                arabicName: "رويال روز جولد", 
-                price: 249, 
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0071.jpg", 
-                category: "Classique",
-                variants: [
-                    
-                    { name: "Silver", image: "/images/IMG-20251111-WA0005.jpg", color: "#E0E0E0" },
-                    { name: "Gold", image: "/images/IMG-20251118-WA0071.jpg", color: "#D4AF37" }
-                ]
-            },
-            { 
-                id: 2, 
-                name: "Midnight Elegance", 
-                arabicName: "ميدنايت إليجانس", 
-                price: 249,
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0074.jpg", 
-                category: "Moderne",
-                variants: [
-                  
-                    { name: "Blue Navy", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#000080" }
-                ]
-            },
-            { 
-                id: 3, 
-                name: "Silver Minimalist", 
-                arabicName: "سيلفر مينيماليست", 
-                price: 249,
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0075.jpg", 
-                category: "Bureau",
-                variants: [
-                    
-                    { name: "White/Silver", image: "https://images.unsplash.com/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#FFFFFF" }
-                ] 
-            },
-            { 
-                id: 4, 
-                name: "Golden Hour", 
-                arabicName: "جولدن آور", 
-                price: 249,
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0070.jpg", 
-                category: "Luxe",
-                variants: [
-                    { name: "Gold", image: "https://images.unsplash.com/photo-1596765275069-7c157f493c04?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#D4AF37" }
-                ]
-            },
-            { 
-                id: 5, 
-                name: "Pearl White", 
-                arabicName: "بيرل وايت", 
-                price: 249,
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0065.jpg", 
-                category: "Chic",
-                variants: [
-                    { name: "White", image: "https://images.unsplash.com/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#ffffff" },
-                    { name: "Pink", image: "https://images.unsplash.com/photo-1517502474097-f9b30659dadb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#ffc0cb" }
-                ]
-            },
-            { 
-                id: 6, 
-                name: "Obsidian Black", 
-                arabicName: "أوبسيديان بلاك", 
-                price: 249,
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0072.jpg", 
-                category: "Soirée",
-                 variants: [
-                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
-                ]
-            },
-             { 
-                id: 7, 
-                name: "Obsidian Black", 
-                arabicName: "أوبسيديان بلاك", 
-                price: 249,
-                oldPrice: 499,
-                image: "/images/IMG-20251118-WA0103.jpg", 
-                category: "Soirée",
-                 variants: [
-                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
-                ]
-            },
-             { 
-                id: 8, 
-                name: "Obsidian Black", 
-                arabicName: "أوبسيديان بلاك", 
-                price: 199,
-                oldPrice: 399,
-                image: "/images/IMG-20251118-WA0067.jpg", 
-                category: "Soirée",
-                 variants: [
-                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
-                ]
-            },
-             { 
-                id: 9, 
-                name: "Obsidian Black", 
-                arabicName: "أوبسيديان بلاك", 
-                price: 199,
-                oldPrice: 399,
-                image: "/images/IMG-20251118-WA0069.jpg", 
-                category: "Soirée",
-                 variants: [
-                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
-                ]
-            },
-              { 
-                id: 10, 
-                name: "Obsidian Black", 
-                arabicName: "أوبسيديان بلاك", 
-                price: 199,
-                oldPrice: 399,
-                image: "/images/IMG-20251118-WA0066.jpg", 
-                category: "Soirée",
-                 variants: [
-                    { name: "Black", image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80", color: "#1a1a1a" }
-                ]
-            },
-        ];
+        const allProducts = <?php echo json_encode($data['allProducts']); ?>;
 
         // 3. Packs Data
-        const promoPacks = [
-            {
-                id: 101,
-                name: "Pack Duo Luxe",
-                arabicName: "باك الفخامة",
-                description: "Montre Royal Gold + Bracelet Assorti",
-                oldPrice: 599,
-                newPrice: 449,
-                image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                category: "Pack Promo"
-            },
-            {
-                id: 102,
-                name: "Coffret Cadeau Doré",
-                arabicName: "صندوق هدايا ذهبي",
-                description: "Montre + Collier + Bague",
-                oldPrice: 699,
-                newPrice: 499,
-                image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                category: "Pack Promo"
-            }
-        ];
+        const promoPacks = <?php echo json_encode($data['promoPacks']); ?>;
 
         let cart = JSON.parse(localStorage.getItem('swisCart')) || [];
         let visibleProducts = 4;
@@ -1043,7 +872,7 @@
                 return;
             }
 
-            const phoneNum = "212644824488";
+            const phoneNum = "<?php echo $settings['whatsapp_number']; ?>";
             let msg = `👋 *NOUVELLE COMMANDE / طلب جديد* \n`;
             msg += `--------------------------------\n`;
             msg += `👤 *Client:* ${name}\n`;
@@ -1056,10 +885,10 @@
             let total = 0;
             cart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
-                msg += `▪️ ${item.name} (${item.variant}) x${item.quantity} - ${itemTotal} MAD\n`;
+                msg += `▪️ ${item.name} (${item.variant}) x${item.quantity} - ${itemTotal} <?php echo $settings['currency']; ?>\n`;
                 total += itemTotal;
             });
-            msg += `\n💰 *TOTAL: ${total} MAD*`;
+            msg += `\n💰 *TOTAL: ${total} <?php echo $settings['currency']; ?>*`;
             
             // Close modal
             closeCheckoutModal();

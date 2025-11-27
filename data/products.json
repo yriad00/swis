@@ -1,0 +1,230 @@
+{
+    "newArrivals": [
+        {
+            "id": 201,
+            "name": "Eclat Lunaire",
+            "arabicName": "إكلا لونير",
+            "price": 149,
+            "oldPrice": 399,
+            "image": "\/images\/image_1.jpg",
+            "category": "Nouveau",
+            "variants": []
+        },
+        {
+            "id": 202,
+            "name": "Soleil Royal",
+            "arabicName": "سولاي رويال",
+            "price": 149,
+            "oldPrice": 399,
+            "image": "\/images\/iamge_2.jpg",
+            "category": "Nouveau",
+            "variants": []
+        },
+        {
+            "id": 203,
+            "name": "Diamant Noir",
+            "arabicName": "ديامون نوار",
+            "price": 149,
+            "oldPrice": 399,
+            "image": "\/images\/image_3.jpg",
+            "category": "Nouveau",
+            "variants": []
+        }
+    ],
+    "allProducts": [
+        {
+            "id": 1,
+            "name": "Royal Rose Gold",
+            "arabicName": "رويال روز جولد",
+            "image": "\/images\/IMG-20251118-WA0071.jpg",
+            "category": "Classique",
+            "variants": [
+                {
+                    "name": "Silver",
+                    "image": "\/images\/IMG-20251111-WA0005.jpg",
+                    "color": "#E0E0E0"
+                },
+                {
+                    "name": "Gold",
+                    "image": "\/images\/IMG-20251118-WA0071.jpg",
+                    "color": "#D4AF37"
+                }
+            ],
+            "price": 249,
+            "oldPrice": 499
+        },
+        {
+            "id": 2,
+            "name": "Midnight Elegance",
+            "arabicName": "ميدنايت إليجانس",
+            "price": 249,
+            "oldPrice": 499,
+            "image": "\/images\/IMG-20251118-WA0074.jpg",
+            "category": "Moderne",
+            "variants": [
+                {
+                    "name": "Blue Navy",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#000080"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Silver Minimalist",
+            "arabicName": "سيلفر مينيماليست",
+            "price": 249,
+            "oldPrice": 499,
+            "image": "\/images\/IMG-20251118-WA0075.jpg",
+            "category": "Bureau",
+            "variants": [
+                {
+                    "name": "White\/Silver",
+                    "image": "https:\/\/images.unsplash.com\/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#FFFFFF"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Golden Hour",
+            "arabicName": "جولدن آور",
+            "price": 249,
+            "oldPrice": 499,
+            "image": "\/images\/IMG-20251118-WA0070.jpg",
+            "category": "Luxe",
+            "variants": [
+                {
+                    "name": "Gold",
+                    "image": "https:\/\/images.unsplash.com\/photo-1596765275069-7c157f493c04?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#D4AF37"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Pearl White",
+            "arabicName": "بيرل وايت",
+            "price": 249,
+            "oldPrice": 499,
+            "image": "\/images\/IMG-20251118-WA0065.jpg",
+            "category": "Chic",
+            "variants": [
+                {
+                    "name": "White",
+                    "image": "https:\/\/images.unsplash.com\/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#ffffff"
+                },
+                {
+                    "name": "Pink",
+                    "image": "https:\/\/images.unsplash.com\/photo-1517502474097-f9b30659dadb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#ffc0cb"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Obsidian Black",
+            "arabicName": "أوبسيديان بلاك",
+            "price": 249,
+            "oldPrice": 499,
+            "image": "\/images\/IMG-20251118-WA0072.jpg",
+            "category": "Soirée",
+            "variants": [
+                {
+                    "name": "Black",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#1a1a1a"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "name": "Obsidian Black",
+            "arabicName": "أوبسيديان بلاك",
+            "price": 249,
+            "oldPrice": 499,
+            "image": "\/images\/IMG-20251118-WA0103.jpg",
+            "category": "Soirée",
+            "variants": [
+                {
+                    "name": "Black",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#1a1a1a"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "name": "Obsidian Black",
+            "arabicName": "أوبسيديان بلاك",
+            "price": 199,
+            "oldPrice": 399,
+            "image": "\/images\/IMG-20251118-WA0067.jpg",
+            "category": "Soirée",
+            "variants": [
+                {
+                    "name": "Black",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#1a1a1a"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "name": "Obsidian Black",
+            "arabicName": "أوبسيديان بلاك",
+            "price": 199,
+            "oldPrice": 399,
+            "image": "\/images\/IMG-20251118-WA0069.jpg",
+            "category": "Soirée",
+            "variants": [
+                {
+                    "name": "Black",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#1a1a1a"
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "name": "Obsidian Black",
+            "arabicName": "أوبسيديان بلاك",
+            "price": 199,
+            "oldPrice": 399,
+            "image": "\/images\/IMG-20251118-WA0066.jpg",
+            "category": "Soirée",
+            "variants": [
+                {
+                    "name": "Black",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    "color": "#1a1a1a"
+                }
+            ]
+        }
+    ],
+    "promoPacks": [
+        {
+            "id": 101,
+            "name": "Pack Duo Luxe",
+            "arabicName": "باك الفخامة",
+            "image": "https:\/\/images.unsplash.com\/photo-1611591437281-460bfbe1220a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            "category": "Pack Promo 123",
+            "variants": null,
+            "newPrice": 449,
+            "oldPrice": 599,
+            "description": "Montre Royal Gold + Bracelet Assorti"
+        },
+        {
+            "id": 102,
+            "name": "Coffret Cadeau Doré",
+            "arabicName": "صندوق هدايا ذهبي",
+            "image": "\/uploads\/1764202743_692798f707498.jpg",
+            "category": "Pack Promo",
+            "variants": null,
+            "newPrice": 499,
+            "oldPrice": 899,
+            "description": "Montre + Collier + Bague"
+        }
+    ]
+}
