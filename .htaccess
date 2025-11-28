@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# 1. URL Rewriting
+# Redirect /product/123/slug to product.php?id=123
+RewriteRule ^product/([0-9]+)/?(.*)?$ product.php?id=$1 [L,QSA]
+
+# Force HTTPS (Optional but recommended)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

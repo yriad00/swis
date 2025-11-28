@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($data[$targetType] as &$p) {
                 if ($p['id'] == $id) {
                     // Merge to keep variants if we didn't edit them
-                    $newProduct['variants'] = $p['variants']; 
+                    // $newProduct['variants'] = $p['variants']; 
                     $p = $newProduct;
                     $found = true;
                     break;

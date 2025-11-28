@@ -41,13 +41,13 @@
             "variants": [
                 {
                     "name": "Silver",
-                    "image": "\/images\/IMG-20251111-WA0005.jpg",
-                    "color": "#E0E0E0"
+                    "color": "#e0e0e0",
+                    "image": "\/uploads\/1764348762_v0_6929d35aac2f1.jpg"
                 },
                 {
                     "name": "Gold",
-                    "image": "\/images\/IMG-20251118-WA0071.jpg",
-                    "color": "#D4AF37"
+                    "color": "#d4af37",
+                    "image": "\/images\/IMG-20251118-WA0071.jpg"
                 }
             ],
             "price": 249,

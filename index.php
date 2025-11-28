@@ -56,6 +56,11 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             border-radius: 4px;
         }
         
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px; /* Fix for fixed navbar covering content */
+        }
+
         .fade-in {
             animation: fadeIn 0.8s ease-in;
         }
@@ -66,13 +71,17 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         }
 
         .glass-nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.90); /* More transparency */
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1); /* Subtle gold border */
         }
 
-        .product-card:hover .product-img {
-            transform: scale(1.05);
+        .product-card {
+            transition: all 0.4s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
         }
         
         /* Modal Transitions */
@@ -96,11 +105,11 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         /* Variant Selection Styles */
         .variant-option {
             transition: all 0.2s;
-            border: 2px solid transparent;
+            border: 1px solid #e5e7eb;
         }
         .variant-option.selected {
             border-color: #D4AF37;
-            transform: scale(1.1);
+            box-shadow: 0 0 0 1px #D4AF37;
         }
         
         /* New Badge Animation */
@@ -116,9 +125,16 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         /* Input Styles */
         .form-input:focus, .form-select:focus {
             border-color: #D4AF37;
-            ring: 2px solid #D4AF37;
             outline: none;
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        
+        /* Luxury Typography Tweaks */
+        h1, h2, h3, h4 {
+            letter-spacing: -0.02em;
+        }
+        .tracking-widest {
+            letter-spacing: 0.15em;
         }
     </style>
 </head>
@@ -134,21 +150,34 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
                 </button>
 
                 <!-- Logo -->
-                <div class="absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none flex-shrink-0 flex items-center md:flex-1">
-                <a href="#" class="flex flex-col items-center">
-                 <div class="flex flex-col items-center">
-                     <img src="images/logo_swis_rm.png" id="logo-img-nav" alt="Swis Brands Logo" class="h-28 md:h-28 w-auto object-contain">
-                 </div>
-                </a>
-            </div>
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="#" class="flex flex-col items-center">
+                        <img src="images/logo_swis_rm.png" id="logo-img-nav" alt="Swis Brands Logo" class="h-28 md:h-28 w-auto object-contain">
+                    </a>
+                </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8 items-center">
-                    <a href="#home" class="text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium">Accueil</a>
-                    <a href="#new-arrivals" class="text-sm uppercase tracking-widest text-brand-black font-bold border-b-2 border-brand-gold pb-1">Nouveautés</a>
-                    <a href="#new-year" class="text-sm uppercase tracking-widest text-brand-red hover:text-brand-black transition font-bold">Nouvel An 🎉</a>
-                    <a href="#promo-packs" class="text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium">Packs Promo</a>
-                    <a href="#collection" class="text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium">Collection</a>
+                <div class="hidden md:flex flex-1 justify-center space-x-10 items-center">
+                    <a href="#home" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
+                        Accueil
+                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#new-arrivals" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
+                        Nouveautés
+                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#new-year" class="text-xs lg:text-sm uppercase tracking-widest text-brand-red hover:text-brand-black transition font-bold relative group">
+                        Nouvel An 2026
+                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-red transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#promo-packs" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
+                        Packs Promo
+                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#collection" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
+                        Collection
+                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
                 </div>
 
                 <!-- Icons -->
@@ -162,11 +191,11 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         </div>
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 absolute w-full shadow-lg">
-            <a href="#home" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Accueil <span class="font-arabic float-right text-gray-400 text-xs">الرئيسية</span></a>
-            <a href="#new-arrivals" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-gold font-bold">Nouveautés <span class="font-arabic float-right text-brand-gold text-xs">وصل حديثاً</span></a>
-            <a href="#new-year" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-red font-bold">Nouvel An 2025 <span class="font-arabic float-right text-brand-red text-xs">عروض رأس السنة</span></a>
-            <a href="#promo-packs" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Packs Promo <span class="font-arabic float-right text-gray-400 text-xs">تخفيضات</span></a>
-            <a href="#collection" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Collection <span class="font-arabic float-right text-gray-400 text-xs">التشكيلة</span></a>
+            <a href="#home" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Accueil <span class="font-arabic float-right text-gray-400 text-xs">الرئيسية</span></a>
+            <a href="#new-arrivals" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-gold font-bold">Nouveautés <span class="font-arabic float-right text-brand-gold text-xs">وصل حديثاً</span></a>
+            <a href="#new-year" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-red font-bold">Nouvel An 2026 <span class="font-arabic float-right text-brand-red text-xs">عروض رأس السنة</span></a>
+            <a href="#promo-packs" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Packs Promo <span class="font-arabic float-right text-gray-400 text-xs">تخفيضات</span></a>
+            <a href="#collection" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Collection <span class="font-arabic float-right text-gray-400 text-xs">التشكيلة</span></a>
         </div>
     </nav>
 
@@ -178,7 +207,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         </div>
 
         <div class="relative z-10 text-center text-white px-4 fade-in max-w-3xl mx-auto">
-            <p class="text-brand-gold uppercase tracking-[0.3em] mb-4 text-sm font-semibold">Nouvelle Collection 2025</p>
+            <p class="text-brand-gold uppercase tracking-[0.3em] mb-4 text-sm font-semibold">Nouvelle Collection 2026</p>
             <h1 class="text-5xl md:text-7xl font-serif font-bold mb-2">JUST WATCH ME</h1>
             <h2 class="text-3xl md:text-4xl font-arabic font-bold mb-6 text-gray-100">أناقتك، في كل دقيقة</h2>
             <p class="text-lg font-light mb-10 text-gray-200">Découvrez l'élégance du savoir-faire marocain allié à la précision suisse.</p>
@@ -309,6 +338,68 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         </div>
     </section>
 
+    <!-- Customer Reviews (Testimonials) -->
+    <section class="py-20 bg-brand-black text-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <span class="text-brand-gold font-bold tracking-widest uppercase text-sm">Témoignages</span>
+                <h2 class="text-4xl font-serif font-bold mb-2 text-white">Nos Clientes Disent</h2>
+                <p class="font-arabic text-xl text-gray-400">آراء زبوناتنا الوفيات</p>
+                <div class="h-1 w-20 bg-brand-gold mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300 group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://ui-avatars.com/api/?name=Salma+Benani&background=D4AF37&color=fff" alt="Salma" class="w-12 h-12 rounded-full border-2 border-brand-gold">
+                        <div>
+                            <h4 class="font-bold text-lg text-white">Salma Benani</h4>
+                            <div class="text-brand-gold text-xs">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 italic leading-relaxed">
+                        "Reçu aujourd'hui ! Franchement la qualité est incroyable, <span class="text-brand-gold">sa3a nadiya bzaf</span> ou katban luxe f l yed. Merci pour le service ❤️"
+                    </p>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300 group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://ui-avatars.com/api/?name=Imane+Tazi&background=D4AF37&color=fff" alt="Imane" class="w-12 h-12 rounded-full border-2 border-brand-gold">
+                        <div>
+                            <h4 class="font-bold text-lg text-white">Imane Tazi</h4>
+                            <div class="text-brand-gold text-xs">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 italic leading-relaxed">
+                        "Commande wslatni f 24h, tbarkallah 3likom. <span class="text-brand-gold">Livreur drif</span> ou sa3a magnifique. Je recommande à 100% !"
+                    </p>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300 group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://ui-avatars.com/api/?name=Houda+Idrissi&background=D4AF37&color=fff" alt="Houda" class="w-12 h-12 rounded-full border-2 border-brand-gold">
+                        <div>
+                            <h4 class="font-bold text-lg text-white">Houda El Idrissi</h4>
+                            <div class="text-brand-gold text-xs">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 italic leading-relaxed">
+                        "Khditha cadeau l khti, 7ma9at 3liha! <span class="text-brand-gold">L'emballage est très classe</span>. Merci Swis Brands pour le professionnalisme 🎁"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Shopping Cart Sidebar -->
     <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
         <div class="h-full flex flex-col">
@@ -381,9 +472,19 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-4 mb-8">
+                    <div class="flex items-center gap-4 mb-6">
                         <span id="modal-price" class="text-3xl md:text-4xl font-bold text-brand-black">000 DH</span>
                         <span id="modal-old-price" class="text-lg md:text-xl text-gray-400 line-through hidden">000 DH</span>
+                    </div>
+
+                    <!-- Quantity Selector -->
+                    <div class="flex items-center mb-8">
+                        <span class="text-xs font-bold uppercase tracking-widest text-brand-black mr-4">Quantité:</span>
+                        <div class="flex items-center border border-gray-200 rounded-md">
+                            <button onclick="adjustModalQty(-1)" class="px-4 py-2 hover:bg-gray-50 text-gray-600 transition">-</button>
+                            <span id="modal-qty" class="px-4 py-2 font-bold text-brand-black min-w-[3rem] text-center">1</span>
+                            <button onclick="adjustModalQty(1)" class="px-4 py-2 hover:bg-gray-50 text-gray-600 transition">+</button>
+                        </div>
                     </div>
                 </div>
 
@@ -490,7 +591,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             </div>
         </div>
         <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-600 text-xs">
-            &copy; 2025 Swis Brands. All rights reserved.
+            &copy; 2026 Swis Brands. All rights reserved.
         </div>
     </footer>
 
@@ -519,6 +620,13 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         let cart = JSON.parse(localStorage.getItem('swisCart')) || [];
         let visibleProducts = 4;
         let currentSelectedVariant = null; 
+        let currentModalQty = 1;
+
+        function adjustModalQty(change) {
+            currentModalQty += change;
+            if (currentModalQty < 1) currentModalQty = 1;
+            document.getElementById('modal-qty').textContent = currentModalQty;
+        }
 
         // --- COUNTDOWN ---
         function startCountdown() {
@@ -674,6 +782,10 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             const variantSection = document.getElementById('variant-section');
             const variantOptionsDiv = document.getElementById('variant-options');
             currentSelectedVariant = null; 
+            
+            // Reset Quantity
+            currentModalQty = 1;
+            document.getElementById('modal-qty').textContent = currentModalQty;
 
             if (product.variants && product.variants.length > 0) {
                 variantSection.classList.remove('hidden');
@@ -696,13 +808,13 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
 
             const addBtn = document.getElementById('modal-add-btn');
             addBtn.onclick = function() {
-                addToCart(product.id, type);
+                addToCart(product.id, type, currentModalQty);
                 closeModal();
             };
 
             const buyBtn = document.getElementById('modal-buy-now-btn');
             buyBtn.onclick = function() {
-                addToCart(product.id, type);
+                addToCart(product.id, type, currentModalQty);
                 closeModal();
                 openCheckoutModal();
             };
@@ -733,7 +845,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         }
 
         // Add to Cart Logic
-        function addToCart(id, type = 'collection') {
+        function addToCart(id, type = 'collection', qty = 1) {
             const product = findProduct(id, type);
             
             const variantName = currentSelectedVariant ? currentSelectedVariant.name : "Standard";
@@ -745,7 +857,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             const existingItem = cart.find(item => item.cartId === cartItemId);
 
             if (existingItem) {
-                existingItem.quantity += 1;
+                existingItem.quantity += qty;
             } else {
                 cart.push({
                     cartId: cartItemId,
@@ -754,13 +866,13 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
                     variant: variantName,
                     price: finalPrice,
                     image: variantImage,
-                    quantity: 1
+                    quantity: qty
                 });
             }
 
             saveCart();
             updateCartUI();
-            showToast(`Ajouté: ${product.name}`);
+            showToast(`Ajouté: ${product.name} (x${qty})`);
             
             const cartSidebar = document.getElementById('cart-sidebar');
             if (cartSidebar.classList.contains('translate-x-full')) {
@@ -835,6 +947,16 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         function toggleMobileMenu() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.getElementById('navbar');
+            const mobileMenu = document.getElementById('mobile-menu');
+            // Check if click is outside the navbar and the menu is NOT hidden
+            if (!nav.contains(event.target) && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
