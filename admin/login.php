@@ -6,19 +6,46 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
     exit;
 }
 
+// Load admin credentials from secure file (create this file with hashed password)
+$credentialsFile = __DIR__ . '/../data/admin_credentials.json';
+if (!file_exists($credentialsFile)) {
+    // Default credentials - CHANGE IMMEDIATELY after first login
+    $defaultCredentials = [
+        'username' => 'admin',
+        'password_hash' => password_hash('admin123', PASSWORD_DEFAULT)
+    ];
+    file_put_contents($credentialsFile, json_encode($defaultCredentials, JSON_PRETTY_PRINT));
+}
+$credentials = json_decode(file_get_contents($credentialsFile), true);
+
 $error = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+// Generate CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
-    // Hardcoded credentials
-    if ($username === 'admin' && $password === 'admin123') {
-        $_SESSION['admin_logged_in'] = true;
-        header('Location: index.php');
-        exit;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validate CSRF token
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $error = 'Session expirée, veuillez réessayer.';
     } else {
-        $error = 'Identifiants incorrects';
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        // Use secure password verification
+        if ($username === $credentials['username'] && password_verify($password, $credentials['password_hash'])) {
+            // Regenerate session ID to prevent session fixation
+            session_regenerate_id(true);
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // New token after login
+            header('Location: index.php');
+            exit;
+        } else {
+            $error = 'Identifiants incorrects';
+            // Add small delay to prevent brute force
+            usleep(500000); // 0.5 seconds
+        }
     }
 }
 ?>
@@ -40,7 +67,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
+        <?php 
+        // Warning for default credentials
+        $credentialsFile = __DIR__ . '/../data/admin_credentials.json';
+        if (file_exists($credentialsFile)) {
+            $creds = json_decode(file_get_contents($credentialsFile), true);
+            if ($creds && $creds['username'] === 'admin' && password_verify('admin123', $creds['password_hash'])) {
+                echo '<div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                    <strong>Attention:</strong> Vous utilisez les identifiants par défaut (admin/admin123). Veuillez les changer immédiatement.
+                </div>';
+            }
+        }
+        ?>
+
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
                     Nom d'utilisateur

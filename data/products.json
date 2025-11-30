@@ -4,11 +4,18 @@
             "id": 201,
             "name": "Eclat Lunaire",
             "arabicName": "إكلا لونير",
-            "price": 149,
-            "oldPrice": 399,
             "image": "\/images\/image_1.jpg",
             "category": "Nouveau",
-            "variants": []
+            "group": "A",
+            "variants": [
+                {
+                    "name": "gold",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764379939_v0_692a4d230a2fd.jpg"
+                }
+            ],
+            "price": 149,
+            "oldPrice": 399
         },
         {
             "id": 202,
@@ -18,6 +25,7 @@
             "oldPrice": 399,
             "image": "\/images\/iamge_2.jpg",
             "category": "Nouveau",
+            "group": "A",
             "variants": []
         },
         {
@@ -28,6 +36,7 @@
             "oldPrice": 399,
             "image": "\/images\/image_3.jpg",
             "category": "Nouveau",
+            "group": "A",
             "variants": []
         }
     ],
@@ -37,6 +46,10 @@
             "name": "Royal Rose Gold",
             "arabicName": "رويال روز جولد",
             "image": "\/images\/IMG-20251118-WA0071.jpg",
+            "gallery": [
+                "\/uploads\/1764380787_g0_692a507372f21.jpg",
+                "\/uploads\/1764382088_g0_692a55887f3e7.jpg"
+            ],
             "category": "Classique",
             "variants": [
                 {
@@ -47,11 +60,12 @@
                 {
                     "name": "Gold",
                     "color": "#d4af37",
-                    "image": "\/images\/IMG-20251118-WA0071.jpg"
+                    "image": "\/uploads\/1764445739_v1_692b4e2baa9fa.jpg"
                 }
             ],
             "price": 249,
-            "oldPrice": 499
+            "oldPrice": 499,
+            "group": "C"
         },
         {
             "id": 2,
@@ -61,6 +75,7 @@
             "oldPrice": 499,
             "image": "\/images\/IMG-20251118-WA0074.jpg",
             "category": "Moderne",
+            "group": "B",
             "variants": [
                 {
                     "name": "Blue Navy",
@@ -77,6 +92,7 @@
             "oldPrice": 499,
             "image": "\/images\/IMG-20251118-WA0075.jpg",
             "category": "Bureau",
+            "group": "A",
             "variants": [
                 {
                     "name": "White\/Silver",
@@ -93,6 +109,7 @@
             "oldPrice": 499,
             "image": "\/images\/IMG-20251118-WA0070.jpg",
             "category": "Luxe",
+            "group": "C",
             "variants": [
                 {
                     "name": "Gold",
@@ -109,6 +126,7 @@
             "oldPrice": 499,
             "image": "\/images\/IMG-20251118-WA0065.jpg",
             "category": "Chic",
+            "group": "B",
             "variants": [
                 {
                     "name": "White",
@@ -126,17 +144,18 @@
             "id": 6,
             "name": "Obsidian Black",
             "arabicName": "أوبسيديان بلاك",
-            "price": 249,
-            "oldPrice": 499,
             "image": "\/images\/IMG-20251118-WA0072.jpg",
             "category": "Soirée",
+            "group": "B",
             "variants": [
                 {
                     "name": "Black",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#1a1a1a"
+                    "color": "#1a1a1a",
+                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
                 }
-            ]
+            ],
+            "price": 249,
+            "oldPrice": 499
         },
         {
             "id": 7,
@@ -146,6 +165,7 @@
             "oldPrice": 499,
             "image": "\/images\/IMG-20251118-WA0103.jpg",
             "category": "Soirée",
+            "group": "C",
             "variants": [
                 {
                     "name": "Black",
@@ -162,6 +182,7 @@
             "oldPrice": 399,
             "image": "\/images\/IMG-20251118-WA0067.jpg",
             "category": "Soirée",
+            "group": "B",
             "variants": [
                 {
                     "name": "Black",
@@ -178,6 +199,7 @@
             "oldPrice": 399,
             "image": "\/images\/IMG-20251118-WA0069.jpg",
             "category": "Soirée",
+            "group": "A",
             "variants": [
                 {
                     "name": "Black",
@@ -194,6 +216,7 @@
             "oldPrice": 399,
             "image": "\/images\/IMG-20251118-WA0066.jpg",
             "category": "Soirée",
+            "group": "B",
             "variants": [
                 {
                     "name": "Black",
@@ -206,25 +229,54 @@
     "promoPacks": [
         {
             "id": 101,
-            "name": "Pack Duo Luxe",
-            "arabicName": "باك الفخامة",
+            "name": "Pack Duo Copines",
+            "arabicName": "باك الصديقات",
             "image": "https:\/\/images.unsplash.com\/photo-1611591437281-460bfbe1220a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            "category": "Pack Promo 123",
-            "variants": null,
-            "newPrice": 449,
-            "oldPrice": 599,
-            "description": "Montre Royal Gold + Bracelet Assorti"
+            "gallery": [],
+            "category": "Pack Promo",
+            "variants": [],
+            "newPrice": 120,
+            "oldPrice": 200,
+            "description": "2 Montres au choix (Groupe A)",
+            "type": "pack1",
+            "defaultSlot1": 201,
+            "defaultSlot2": 3,
+            "slot1Group": "A",
+            "slot2Group": "A"
         },
         {
             "id": 102,
-            "name": "Coffret Cadeau Doré",
-            "arabicName": "صندوق هدايا ذهبي",
+            "name": "Pack Buy 1 Get 1",
+            "arabicName": "شري وحدة و خود وحدة",
             "image": "\/uploads\/1764202743_692798f707498.jpg",
+            "gallery": [],
             "category": "Pack Promo",
-            "variants": null,
-            "newPrice": 499,
-            "oldPrice": 899,
-            "description": "Montre + Collier + Bague"
+            "variants": [],
+            "newPrice": 130,
+            "oldPrice": 230,
+            "description": "1 Montre Luxe (C) + 1 Montre Basic (A)",
+            "type": "pack2",
+            "defaultSlot1": 1,
+            "defaultSlot2": 201,
+            "slot1Group": "C",
+            "slot2Group": "A"
+        },
+        {
+            "id": 103,
+            "name": "Pack Collection",
+            "arabicName": "باك التشكيلة",
+            "image": "\/uploads\/1764378530_692a47a2e9b00.jpg",
+            "gallery": [],
+            "category": "Pack Promo",
+            "variants": [],
+            "newPrice": 200,
+            "oldPrice": 300,
+            "description": "2 Montres au choix (Groupe B)",
+            "type": "pack3",
+            "defaultSlot1": 5,
+            "defaultSlot2": 6,
+            "slot1Group": "B",
+            "slot2Group": "B"
         }
     ]
 }

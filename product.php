@@ -1,7 +1,32 @@
 <?php
-$settings = json_decode(file_get_contents('data/settings.json'), true);
-$jsonData = file_get_contents('data/products.json');
+// Load settings with error handling
+$settingsFile = 'data/settings.json';
+if (!file_exists($settingsFile)) {
+    header("HTTP/1.0 500 Internal Server Error");
+    echo "Configuration error";
+    exit;
+}
+$settings = json_decode(file_get_contents($settingsFile), true);
+if ($settings === null) {
+    header("HTTP/1.0 500 Internal Server Error");
+    echo "Configuration error";
+    exit;
+}
+
+// Load products with error handling
+$productsFile = 'data/products.json';
+if (!file_exists($productsFile)) {
+    header("HTTP/1.0 500 Internal Server Error");
+    echo "Products data not found";
+    exit;
+}
+$jsonData = file_get_contents($productsFile);
 $data = json_decode($jsonData, true);
+if ($data === null) {
+    header("HTTP/1.0 500 Internal Server Error");
+    echo "Invalid products data";
+    exit;
+}
 
 $id = $_GET['id'] ?? null;
 $product = null;
@@ -48,7 +73,18 @@ $pageDesc = "Achetez " . htmlspecialchars($product['name']) . ". " . ($product['
 $pageKeywords = "montre femme, " . htmlspecialchars($product['name']) . ", " . htmlspecialchars($product['category']) . ", luxe maroc";
 $currentPrice = ($type === 'pack') ? $product['newPrice'] : $product['price'];
 $oldPrice = ($type === 'pack') ? $product['oldPrice'] : ($product['oldPrice'] ?? null);
-$imageUrl = (strpos($product['image'], 'http') === 0) ? $product['image'] : "https://swisbrands.ma" . $product['image']; // Assuming domain
+
+// Fix image URL - handle both absolute and relative paths
+$productImage = $product['image'];
+if (strpos($productImage, 'http') === 0) {
+    $imageUrl = $productImage;
+} elseif (strpos($productImage, '/') === 0) {
+    // Relative path starting with / - prepend domain
+    $imageUrl = "https://swisbrands.ma" . $productImage;
+} else {
+    // Relative path without leading / - prepend domain and /
+    $imageUrl = "https://swisbrands.ma/" . $productImage;
+}
 
 ?>
 <!DOCTYPE html>

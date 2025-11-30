@@ -130,9 +130,33 @@ $promoPacks = $data['promoPacks'];
             activeTab.classList.add('border-blue-500', 'text-blue-600');
         }
 
-        function deleteProduct(id, type) {
+        function deleteProduct(id, type, csrfToken) {
             if(confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-                window.location.href = `delete_product.php?id=${id}&type=${type}`;
+                // Create and submit a form with POST method
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'delete_product.php';
+                
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = id;
+                form.appendChild(idInput);
+                
+                const typeInput = document.createElement('input');
+                typeInput.type = 'hidden';
+                typeInput.name = 'type';
+                typeInput.value = type;
+                form.appendChild(typeInput);
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrf_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+                
+                document.body.appendChild(form);
+                form.submit();
             }
         }
     </script>
@@ -141,6 +165,7 @@ $promoPacks = $data['promoPacks'];
 
 <?php
 function renderTable($products, $type) {
+    $csrfToken = $_SESSION['csrf_token'];
     echo '<div class="overflow-x-auto">';
     echo '<table class="min-w-full divide-y divide-gray-200">';
     echo '<thead class="bg-gray-50"><tr>
@@ -159,7 +184,7 @@ function renderTable($products, $type) {
         echo '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' . $price . ' DH</td>';
         echo '<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">';
         echo '<a href="product_form.php?id=' . $product['id'] . '&type=' . $type . '" class="text-indigo-600 hover:text-indigo-900 mr-4">Modifier</a>';
-        echo '<button onclick="deleteProduct(' . $product['id'] . ', \'' . $type . '\')" class="text-red-600 hover:text-red-900">Supprimer</button>';
+        echo '<button onclick="deleteProduct(' . $product['id'] . ', \'' . $type . '\', \'' . $csrfToken . '\')" class="text-red-600 hover:text-red-900">Supprimer</button>';
         echo '</td>';
         echo '</tr>';
     }

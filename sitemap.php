@@ -38,11 +38,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     }
 
     foreach ($uniqueProducts as $product):
+        // Skip products with empty names
+        if (empty($product['name'])) continue;
+        
         $slug = slugify($product['name']);
-        $url = $baseUrl . "/product/" . $product['id'] . "/" . $slug;
+        // Use query string format to match product.php
+        $url = $baseUrl . "/product.php?id=" . $product['id'];
     ?>
     <url>
-        <loc><?php echo $url; ?></loc>
+        <loc><?php echo htmlspecialchars($url); ?></loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>

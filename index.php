@@ -1,5 +1,20 @@
 <?php
-$settings = json_decode(file_get_contents('data/settings.json'), true);
+// Load settings with error handling
+$settingsFile = 'data/settings.json';
+if (!file_exists($settingsFile)) {
+    die('Error: Settings file not found. Please ensure data/settings.json exists.');
+}
+$settingsJson = file_get_contents($settingsFile);
+$settings = json_decode($settingsJson, true);
+if ($settings === null) {
+    die('Error: Invalid settings.json format.');
+}
+
+// Load products with error handling
+$productsFile = 'data/products.json';
+if (!file_exists($productsFile)) {
+    die('Error: Products file not found. Please ensure data/products.json exists.');
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -443,8 +458,22 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             </button>
 
             <!-- Image Side -->
-            <div class="md:w-1/2 bg-gray-100 relative h-64 md:h-auto">
+            <div class="md:w-1/2 bg-gray-100 relative h-64 md:h-auto group">
                 <img id="modal-image" src="" alt="Watch Detail" class="w-full h-full object-cover transition duration-500">
+                
+                <!-- Navigation Arrows -->
+                <button id="modal-prev-btn" onclick="navigateModalImage(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-brand-black w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 hidden">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="modal-next-btn" onclick="navigateModalImage(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-brand-black w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 hidden">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <!-- Image Counter -->
+                <div id="modal-image-counter" class="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 text-xs font-bold rounded-full hidden">
+                    <span id="modal-current-index">1</span> / <span id="modal-total-images">1</span>
+                </div>
+                
                 <div class="absolute bottom-4 left-4 bg-white px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full shadow-sm">
                     Swis Brands Original
                 </div>
@@ -564,6 +593,73 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         </div>
     </div>
 
+    <!-- *** CUSTOM BUNDLE MODAL *** -->
+    <div id="bundle-modal" class="modal fixed inset-0 z-[65] flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm" onclick="closeBundleModal()"></div>
+        <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative z-10 flex flex-col max-h-[90vh]">
+            
+            <!-- Header -->
+            <div class="p-6 border-b flex justify-between items-center bg-brand-black text-white rounded-t-2xl">
+                <div>
+                    <h2 class="font-serif text-xl font-bold" id="bundle-title">Composez votre Pack</h2>
+                    <p class="text-xs text-brand-gold" id="bundle-subtitle">Sélectionnez 2 montres</p>
+                </div>
+                <button onclick="closeBundleModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Slots Area -->
+            <div class="p-6 bg-gray-50 border-b">
+                <div class="flex justify-center gap-4 md:gap-8">
+                    <!-- Slot 1 -->
+                    <div id="slot-1" onclick="activateSlot(1)" class="bundle-slot w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-brand-gold transition bg-white relative overflow-hidden group">
+                        <div class="placeholder text-center p-2">
+                            <i class="fas fa-plus text-2xl text-gray-300 mb-2 group-hover:text-brand-gold transition"></i>
+                            <p class="text-xs text-gray-400 font-bold uppercase">Montre 1</p>
+                            <p class="text-[10px] text-gray-400 slot-rule"></p>
+                        </div>
+                        <img src="" class="slot-img absolute inset-0 w-full h-full object-cover hidden">
+                        <button onclick="clearSlot(event, 1)" class="clear-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs hidden items-center justify-center z-10"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <!-- Plus Icon -->
+                    <div class="flex items-center justify-center text-gray-300">
+                        <i class="fas fa-plus text-xl"></i>
+                    </div>
+
+                    <!-- Slot 2 -->
+                    <div id="slot-2" onclick="activateSlot(2)" class="bundle-slot w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-brand-gold transition bg-white relative overflow-hidden group">
+                        <div class="placeholder text-center p-2">
+                            <i class="fas fa-plus text-2xl text-gray-300 mb-2 group-hover:text-brand-gold transition"></i>
+                            <p class="text-xs text-gray-400 font-bold uppercase">Montre 2</p>
+                            <p class="text-[10px] text-gray-400 slot-rule"></p>
+                        </div>
+                        <img src="" class="slot-img absolute inset-0 w-full h-full object-cover hidden">
+                        <button onclick="clearSlot(event, 2)" class="clear-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs hidden items-center justify-center z-10"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selection Area -->
+            <div class="flex-1 overflow-y-auto p-6 bg-white">
+                <h3 class="text-sm font-bold uppercase tracking-widest mb-4 text-gray-500">
+                    Choisissez pour <span id="active-slot-label" class="text-brand-black">Montre 1</span>:
+                </h3>
+                <div id="bundle-products-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Products injected here -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-6 border-t bg-gray-50">
+                <button id="add-bundle-btn" onclick="addBundleToCart()" disabled class="w-full bg-gray-300 text-white py-4 rounded-lg uppercase tracking-widest font-bold transition shadow-lg cursor-not-allowed">
+                    Ajouter au Panier
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-brand-black text-white py-16 border-t-4 border-brand-gold">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
@@ -603,24 +699,49 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
 
     <script>
         <?php
-        $jsonData = file_get_contents('data/products.json');
-        $data = json_decode($jsonData, true);
+        $productsJson = file_get_contents($productsFile);
+        $data = json_decode($productsJson, true);
+        if ($data === null) {
+            die('Error: Invalid products.json format.');
+        }
+        
+        // Safely encode data for JavaScript with proper escaping
+        $jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE;
         ?>
         // --- DATA ---
         
         // 1. New Arrivals Data
-        const newArrivals = <?php echo json_encode($data['newArrivals']); ?>;
+        const newArrivals = <?php echo json_encode($data['newArrivals'] ?? [], $jsonOptions); ?>;
 
         // 2. Main Collection Data
-        const allProducts = <?php echo json_encode($data['allProducts']); ?>;
+        const allProducts = <?php echo json_encode($data['allProducts'] ?? [], $jsonOptions); ?>;
 
         // 3. Packs Data
-        const promoPacks = <?php echo json_encode($data['promoPacks']); ?>;
+        const promoPacks = <?php echo json_encode($data['promoPacks'] ?? [], $jsonOptions); ?>;
+
+        // Combined Products for Bundle Logic
+        const availableForBundle = [...newArrivals, ...allProducts];
 
         let cart = JSON.parse(localStorage.getItem('swisCart')) || [];
         let visibleProducts = 4;
         let currentSelectedVariant = null; 
         let currentModalQty = 1;
+        
+        // Image navigation state
+        let modalImages = [];
+        let currentImageIndex = 0;
+        
+        // Current modal product reference
+        let currentModalProduct = null;
+        let currentModalType = 'collection';
+
+        // Helper function to escape HTML for XSS prevention
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         function adjustModalQty(change) {
             currentModalQty += change;
@@ -647,6 +768,227 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             }, 1000);
         }
 
+        // --- BUNDLE LOGIC ---
+        let currentBundle = {
+            id: null,
+            type: null, // pack1, pack2, pack3
+            slot1: null,
+            slot2: null,
+            price: 0,
+            name: ""
+        };
+        let activeSlot = 1;
+
+        function openBundleModal(packId) {
+            const pack = promoPacks.find(p => p.id === packId);
+            if (!pack || !pack.type) {
+                // Fallback for old packs without type
+                openModal(packId, 'pack');
+                return;
+            }
+
+            currentBundle = {
+                id: pack.id,
+                type: pack.type,
+                slot1: null,
+                slot2: null,
+                price: pack.newPrice,
+                name: pack.name,
+                // Store the rules directly from pack
+                slot1Group: pack.slot1Group || 'A',
+                slot2Group: pack.slot2Group || 'A'
+            };
+
+            // Reset UI
+            document.getElementById('bundle-title').textContent = pack.name;
+            document.getElementById('bundle-subtitle').textContent = pack.description;
+            
+            resetSlotUI(1);
+            resetSlotUI(2);
+            
+            // Set Rules Text using stored values
+            document.querySelector('#slot-1 .slot-rule').textContent = `(Groupe ${currentBundle.slot1Group})`;
+            document.querySelector('#slot-2 .slot-rule').textContent = `(Groupe ${currentBundle.slot2Group})`;
+
+            const modal = document.getElementById('bundle-modal');
+            modal.classList.remove('hidden');
+            // Add active class for animation
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+            
+            // Handle Default Slots
+            if (pack.defaultSlot1) {
+                selectBundleProduct(pack.defaultSlot1, null, 1); // Force slot 1
+            }
+            if (pack.defaultSlot2) {
+                selectBundleProduct(pack.defaultSlot2, null, 2); // Force slot 2
+            }
+
+            // If no defaults, activate slot 1
+            if (!pack.defaultSlot1) {
+                activateSlot(1);
+            } else if (!pack.defaultSlot2) {
+                activateSlot(2);
+            } else {
+                // Both defaults set, just render products for slot 1
+                renderBundleProducts(currentBundle.slot1Group);
+            }
+        }
+
+        function closeBundleModal() {
+            const modal = document.getElementById('bundle-modal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function getBundleRules(type) {
+            // Find the pack to get its specific rules
+            const pack = promoPacks.find(p => p.type === type);
+            if (pack && pack.slot1Group && pack.slot2Group) {
+                return { slot1: pack.slot1Group, slot2: pack.slot2Group };
+            }
+            
+            // Fallback for legacy or hardcoded types if not set in DB
+            if (type === 'pack1') return { slot1: 'A', slot2: 'A' }; // Duo Copines
+            if (type === 'pack2') return { slot1: 'C', slot2: 'A' }; // Buy 1 Get 1
+            if (type === 'pack3') return { slot1: 'B', slot2: 'B' }; // Collection
+            return { slot1: 'A', slot2: 'A' };
+        }
+
+        function activateSlot(slotNum) {
+            activeSlot = slotNum;
+            
+            // Highlight active slot
+            document.querySelectorAll('.bundle-slot').forEach(el => el.classList.remove('border-brand-gold', 'bg-brand-gold/5'));
+            const activeEl = document.getElementById(`slot-${slotNum}`);
+            activeEl.classList.add('border-brand-gold', 'bg-brand-gold/5');
+            
+            document.getElementById('active-slot-label').textContent = `Montre ${slotNum}`;
+
+            // Filter Products using stored groups from currentBundle
+            const requiredGroup = (slotNum === 1) ? currentBundle.slot1Group : currentBundle.slot2Group;
+            
+            renderBundleProducts(requiredGroup);
+        }
+
+        function renderBundleProducts(group) {
+            const container = document.getElementById('bundle-products-grid');
+            
+            // Filter products from BOTH collections based on Product Group
+            // Also include products without a group if group is 'ANY' or allow selection
+            const eligibleProducts = availableForBundle.filter(p => p.group === group);
+            
+            if (eligibleProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-400 mb-2">Aucun produit dans le Groupe ${group}.</p>
+                        <p class="text-xs text-gray-500">Assurez-vous d'attribuer des produits au groupe ${group} dans l'admin.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render Products (Not Variants)
+            container.innerHTML = eligibleProducts.map(p => `
+                <div onclick="selectBundleProduct(${p.id}, null)" class="cursor-pointer border rounded-lg p-2 hover:shadow-md transition flex flex-col items-center text-center bg-white h-full">
+                    <img src="${escapeHtml(p.image)}" class="w-20 h-20 object-cover mb-2 rounded">
+                    <h4 class="text-xs font-bold line-clamp-1">${escapeHtml(p.name)}</h4>
+                    <p class="text-xs text-gray-500">${escapeHtml(p.category)}</p>
+                </div>
+            `).join('');
+        }
+
+        function selectBundleProduct(productId, variantIndex, forceSlot = null) {
+            const product = availableForBundle.find(p => p.id === productId);
+            if (!product) return;
+
+            let selectedItem = {
+                id: product.id,
+                name: product.name,
+                image: product.image,
+                variantName: "Standard"
+            };
+
+            // Determine which slot to use
+            const targetSlot = forceSlot || activeSlot;
+
+            // If variantIndex is provided (future proofing), use it. 
+            // Currently we select product, and maybe later ask for variant? 
+            // For now, just select the main product.
+            if (targetSlot === 1) currentBundle.slot1 = selectedItem;
+            else currentBundle.slot2 = selectedItem;
+
+            // Update Slot UI
+            const slotEl = document.getElementById(`slot-${targetSlot}`);
+            slotEl.querySelector('.placeholder').classList.add('hidden');
+            const imgEl = slotEl.querySelector('.slot-img');
+            imgEl.src = selectedItem.image;
+            imgEl.classList.remove('hidden');
+            slotEl.querySelector('.clear-btn').classList.remove('hidden');
+            slotEl.querySelector('.clear-btn').classList.add('flex');
+
+            // Auto-advance only if not forcing
+            if (!forceSlot && targetSlot === 1 && !currentBundle.slot2) {
+                setTimeout(() => activateSlot(2), 300);
+            }
+
+            validateBundle();
+        }
+
+        function clearSlot(e, slotNum) {
+            e.stopPropagation();
+            if (slotNum === 1) currentBundle.slot1 = null;
+            else currentBundle.slot2 = null;
+            
+            resetSlotUI(slotNum);
+            validateBundle();
+            activateSlot(slotNum);
+        }
+
+        function resetSlotUI(slotNum) {
+            const slotEl = document.getElementById(`slot-${slotNum}`);
+            slotEl.querySelector('.placeholder').classList.remove('hidden');
+            slotEl.querySelector('.slot-img').classList.add('hidden');
+            slotEl.querySelector('.clear-btn').classList.add('hidden');
+            slotEl.querySelector('.clear-btn').classList.remove('flex');
+        }
+
+        function validateBundle() {
+            const btn = document.getElementById('add-bundle-btn');
+            if (currentBundle.slot1 && currentBundle.slot2) {
+                btn.disabled = false;
+                btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+                btn.classList.add('bg-brand-black', 'hover:bg-brand-gold');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('bg-gray-300', 'cursor-not-allowed');
+                btn.classList.remove('bg-brand-black', 'hover:bg-brand-gold');
+            }
+        }
+
+        function addBundleToCart() {
+            if (!currentBundle.slot1 || !currentBundle.slot2) return;
+
+            const cartItemId = `bundle-${currentBundle.id}-${Date.now()}`;
+            
+            cart.push({
+                cartId: cartItemId,
+                id: currentBundle.id,
+                name: currentBundle.name,
+                variant: `${currentBundle.slot1.variantName} + ${currentBundle.slot2.variantName}`,
+                price: currentBundle.price,
+                image: currentBundle.slot1.image, // Use first image as thumbnail
+                quantity: 1,
+                isBundle: true,
+                items: [currentBundle.slot1, currentBundle.slot2]
+            });
+
+            saveCart();
+            updateCartUI();
+            closeBundleModal();
+            showToast("Pack ajouté au panier !");
+            toggleCart();
+        }
+
         // --- RENDER FUNCTIONS ---
         
         // 1. New Arrivals
@@ -658,11 +1000,11 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
                         Nouveau
                     </div>
                     <div class="relative overflow-hidden aspect-w-4 aspect-h-5 h-64 sm:h-80 bg-gray-100 mb-4">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out transform group-hover:scale-110">
+                        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out transform group-hover:scale-110">
                     </div>
                     <div class="text-center px-4">
-                        <h3 class="font-serif text-lg text-brand-black font-bold mb-1">${product.name}</h3>
-                        <p class="font-arabic text-sm text-gray-400 mb-2">${product.arabicName}</p>
+                        <h3 class="font-serif text-lg text-brand-black font-bold mb-1">${escapeHtml(product.name)}</h3>
+                        <p class="font-arabic text-sm text-gray-400 mb-2">${escapeHtml(product.arabicName)}</p>
                         <p class="text-brand-gold font-bold text-xl">${product.price} DH</p>
                     </div>
                 </div>
@@ -676,7 +1018,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             grid.innerHTML = productsToShow.map(product => `
                 <div class="product-card cursor-pointer group relative bg-white pb-2 md:pb-4 rounded-lg overflow-hidden hover:shadow-lg transition duration-300 border border-gray-100" onclick="openModal(${product.id}, 'collection')">
                     <div class="relative overflow-hidden aspect-w-1 aspect-h-1 h-40 md:h-80 bg-gray-100 mb-2 md:mb-4">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out">
+                        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" class="product-img w-full h-full object-cover object-center transition duration-500 ease-in-out">
                         <div class="absolute inset-x-0 bottom-0 p-2 md:p-4 opacity-0 group-hover:opacity-100 transition duration-300 translate-y-4 group-hover:translate-y-0">
                             <span class="block w-full text-center bg-brand-black text-white py-2 md:py-3 uppercase text-[10px] md:text-xs tracking-widest shadow-lg rounded font-bold">
                                 Voir Détails
@@ -684,9 +1026,9 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
                         </div>
                     </div>
                     <div class="text-center px-2 md:px-4">
-                        <p class="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1 truncate">${product.category}</p>
-                        <h3 class="font-serif text-sm md:text-lg text-brand-black mb-0 truncate">${product.name}</h3>
-                        <p class="font-arabic text-xs md:text-sm text-gray-500 mb-1 md:mb-2 truncate">${product.arabicName}</p>
+                        <p class="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1 truncate">${escapeHtml(product.category)}</p>
+                        <h3 class="font-serif text-sm md:text-lg text-brand-black mb-0 truncate">${escapeHtml(product.name)}</h3>
+                        <p class="font-arabic text-xs md:text-sm text-gray-500 mb-1 md:mb-2 truncate">${escapeHtml(product.arabicName)}</p>
                         
                         <!-- Price Block -->
                         <div class="flex items-center justify-center gap-2 mb-2">
@@ -696,7 +1038,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
 
                         ${product.variants && product.variants.length > 1 ? 
                             `<div class="flex justify-center gap-1 mt-1 md:mt-2">
-                                ${product.variants.map(v => `<div class="w-2 h-2 md:w-3 md:h-3 rounded-full border border-gray-200" style="background-color: ${v.color}"></div>`).join('')}
+                                ${product.variants.map(v => `<div class="w-2 h-2 md:w-3 md:h-3 rounded-full border border-gray-200" style="background-color: ${escapeHtml(v.color)}"></div>`).join('')}
                              </div>` : ''
                         }
                     </div>
@@ -714,19 +1056,19 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             container.innerHTML = promoPacks.map(pack => `
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-brand-rose/20 flex flex-col md:flex-row h-full md:h-80 relative group">
                     <div class="absolute top-4 left-4 z-10 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">PROMO -25%</div>
-                    <div class="md:w-1/2 relative overflow-hidden cursor-pointer" onclick="openModal(${pack.id}, 'pack')">
-                        <img src="${pack.image}" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="${pack.name}">
+                    <div class="md:w-1/2 relative overflow-hidden cursor-pointer" onclick="${pack.type ? `openBundleModal(${pack.id})` : `openModal(${pack.id}, 'pack')`}">
+                        <img src="${escapeHtml(pack.image)}" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="${escapeHtml(pack.name)}">
                     </div>
                     <div class="md:w-1/2 p-8 flex flex-col justify-center text-left">
-                        <h3 class="font-serif text-2xl font-bold text-brand-black mb-1 cursor-pointer" onclick="openModal(${pack.id}, 'pack')">${pack.name}</h3>
-                        <h4 class="font-arabic text-lg text-gray-500 mb-3">${pack.arabicName}</h4>
-                        <p class="text-sm text-gray-600 mb-4">${pack.description}</p>
+                        <h3 class="font-serif text-2xl font-bold text-brand-black mb-1 cursor-pointer" onclick="${pack.type ? `openBundleModal(${pack.id})` : `openModal(${pack.id}, 'pack')`}">${escapeHtml(pack.name)}</h3>
+                        <h4 class="font-arabic text-lg text-gray-500 mb-3">${escapeHtml(pack.arabicName)}</h4>
+                        <p class="text-sm text-gray-600 mb-4">${escapeHtml(pack.description)}</p>
                         <div class="flex items-center gap-4 mb-6">
                             <span class="text-gray-400 line-through text-lg">${pack.oldPrice} DH</span>
                             <span class="text-brand-red font-bold text-3xl">${pack.newPrice} DH</span>
                         </div>
-                        <button onclick="addToCart(${pack.id}, 'pack')" class="shimmer bg-brand-black text-white py-3 px-6 rounded-lg uppercase tracking-widest text-sm font-bold hover:bg-brand-gold transition shadow-lg w-full md:w-auto">
-                            Commander
+                        <button onclick="${pack.type ? `openBundleModal(${pack.id})` : `addToCart(${pack.id}, 'pack')`}" class="shimmer bg-brand-black text-white py-3 px-6 rounded-lg uppercase tracking-widest text-sm font-bold hover:bg-brand-gold transition shadow-lg w-full md:w-auto">
+                            ${pack.type ? 'Composer le Pack' : 'Commander'}
                         </button>
                     </div>
                 </div>
@@ -736,14 +1078,20 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         // --- MODAL & CART LOGIC ---
 
         function findProduct(id, type) {
-            if (type === 'pack' || type === true) return promoPacks.find(p => p.id === id);
+            // type should be: 'pack', 'new', or 'collection'
+            if (type === 'pack') return promoPacks.find(p => p.id === id);
             if (type === 'new') return newArrivals.find(p => p.id === id);
+            // 'collection' or any other value defaults to allProducts
             return allProducts.find(p => p.id === id);
         }
 
         function openModal(id, type = 'collection') {
             const product = findProduct(id, type);
             if (!product) return;
+
+            // Store product reference for variant selection
+            currentModalProduct = product;
+            currentModalType = type;
 
             // Basic Info
             document.getElementById('modal-title').textContent = product.name;
@@ -754,7 +1102,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             let showOldPrice = false;
             let oldPriceVal = 0;
 
-            if (type === 'pack' || type === true) {
+            if (type === 'pack') {
                 currentPrice = product.newPrice;
                 if (product.oldPrice) {
                     showOldPrice = true;
@@ -778,7 +1126,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
                 oldPriceEl.classList.add('hidden');
             }
 
-            // Variant Logic
+            // Variant and Gallery Logic
             const variantSection = document.getElementById('variant-section');
             const variantOptionsDiv = document.getElementById('variant-options');
             currentSelectedVariant = null; 
@@ -787,21 +1135,53 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             currentModalQty = 1;
             document.getElementById('modal-qty').textContent = currentModalQty;
 
-            if (product.variants && product.variants.length > 0) {
+            // Check if product has real variants (non-empty array)
+            const hasVariants = product.variants && product.variants.length > 0;
+            // Check if product has gallery images
+            const hasGallery = product.gallery && product.gallery.length > 0;
+
+            // Build image array for navigation - ONLY gallery images (not variants)
+            // Start with main product image, then add gallery
+            modalImages = [product.image];
+            if (hasGallery) {
+                product.gallery.forEach(img => {
+                    if (!modalImages.includes(img)) {
+                        modalImages.push(img);
+                    }
+                });
+            }
+            
+            currentImageIndex = 0;
+            
+            // Always set main image first
+            document.getElementById('modal-image').src = product.image;
+            updateImageNavigation();
+
+            if (hasVariants) {
+                // Product has variants - show variants
                 variantSection.classList.remove('hidden');
                 currentSelectedVariant = product.variants[0];
-                document.getElementById('modal-image').src = currentSelectedVariant.image;
+                // Don't change the main image here - keep product.image as default
+                // Variant image will be shown when user clicks a variant
                 document.getElementById('selected-variant-name').textContent = currentSelectedVariant.name;
 
-                variantOptionsDiv.innerHTML = product.variants.map((v, index) => `
+                // Build variant thumbnails (color swatches)
+                let thumbnailsHtml = product.variants.map((v, index) => `
                     <div onclick="selectVariant(${id}, ${index}, '${type}')" 
                          class="variant-option cursor-pointer rounded-lg overflow-hidden w-16 h-16 relative shadow-sm hover:shadow-md ${index === 0 ? 'selected' : ''}"
-                         title="${v.name}">
-                        <img src="${v.image}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition"></div>
+                         title="${escapeHtml(v.name)}">
+                        <img src="${escapeHtml(v.image || product.image)}" class="w-full h-full object-cover pointer-events-none">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition pointer-events-none"></div>
                     </div>
                 `).join('');
+                
+                variantOptionsDiv.innerHTML = thumbnailsHtml;
+                
+            } else if (hasGallery) {
+                // No variants but has gallery - hide variant section, arrows will handle gallery
+                variantSection.classList.add('hidden');
             } else {
+                // No variants and no gallery
                 variantSection.classList.add('hidden');
                 document.getElementById('modal-image').src = product.image;
             }
@@ -825,17 +1205,80 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
         }
 
         function selectVariant(productId, variantIndex, type) {
-            const product = findProduct(productId, type);
-            const variant = product.variants[variantIndex];
+            // Use stored product reference for reliability
+            const product = currentModalProduct;
+            if (!product || !product.variants || !product.variants[variantIndex]) {
+                console.error('Variant not found:', productId, variantIndex, type);
+                return;
+            }
             
+            const variant = product.variants[variantIndex];
             currentSelectedVariant = variant;
             
-            document.getElementById('modal-image').src = variant.image;
+            // Show variant image - use variant's own image directly
+            if (variant.image && variant.image.length > 0) {
+                document.getElementById('modal-image').src = variant.image;
+            } else {
+                document.getElementById('modal-image').src = product.image;
+            }
             document.getElementById('selected-variant-name').textContent = variant.name;
+            
+            // Reset gallery navigation to start when variant changes
+            currentImageIndex = 0;
             
             const options = document.querySelectorAll('.variant-option');
             options.forEach(opt => opt.classList.remove('selected'));
-            options[variantIndex].classList.add('selected');
+            if (options[variantIndex]) {
+                options[variantIndex].classList.add('selected');
+            }
+        }
+
+        function selectGalleryImage(element, imageSrc) {
+            // Update main image
+            document.getElementById('modal-image').src = imageSrc;
+            
+            // Update current index for navigation
+            const imgIndex = modalImages.indexOf(imageSrc);
+            if (imgIndex !== -1) {
+                currentImageIndex = imgIndex;
+                updateImageCounter();
+            }
+        }
+
+        // Image Navigation Functions
+        function navigateModalImage(direction) {
+            if (modalImages.length <= 1) return;
+            
+            currentImageIndex += direction;
+            
+            // Loop around
+            if (currentImageIndex < 0) currentImageIndex = modalImages.length - 1;
+            if (currentImageIndex >= modalImages.length) currentImageIndex = 0;
+            
+            document.getElementById('modal-image').src = modalImages[currentImageIndex];
+            updateImageCounter();
+        }
+        
+        function updateImageNavigation() {
+            const prevBtn = document.getElementById('modal-prev-btn');
+            const nextBtn = document.getElementById('modal-next-btn');
+            const counter = document.getElementById('modal-image-counter');
+            
+            if (modalImages.length > 1) {
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+                counter.classList.remove('hidden');
+                updateImageCounter();
+            } else {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+                counter.classList.add('hidden');
+            }
+        }
+        
+        function updateImageCounter() {
+            document.getElementById('modal-current-index').textContent = currentImageIndex + 1;
+            document.getElementById('modal-total-images').textContent = modalImages.length;
         }
 
         function closeModal() {
@@ -851,7 +1294,7 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             const variantName = currentSelectedVariant ? currentSelectedVariant.name : "Standard";
             const variantImage = currentSelectedVariant ? currentSelectedVariant.image : product.image;
             
-            const finalPrice = (type === 'pack' || type === true) ? product.newPrice : product.price;
+            const finalPrice = (type === 'pack') ? product.newPrice : product.price;
 
             const cartItemId = `${product.id}-${variantName.replace(/\s+/g, '')}`;
             const existingItem = cart.find(item => item.cartId === cartItemId);
@@ -915,20 +1358,20 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             } else {
                 container.innerHTML = cart.map(item => `
                     <div class="flex items-center space-x-4 border-b pb-4 border-gray-100 last:border-0">
-                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded shadow-sm">
+                        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="w-16 h-16 object-cover rounded shadow-sm">
                         <div class="flex-1">
-                            <h4 class="font-serif text-sm font-bold text-brand-black">${item.name}</h4>
-                            <p class="text-xs text-gray-500 mb-1">Color: ${item.variant}</p>
+                            <h4 class="font-serif text-sm font-bold text-brand-black">${escapeHtml(item.name)}</h4>
+                            <p class="text-xs text-gray-500 mb-1">Color: ${escapeHtml(item.variant)}</p>
                             <p class="text-xs text-brand-gold font-bold">${item.price} DH</p>
                             <div class="flex items-center mt-2 space-x-2">
-                                <button onclick="updateQuantity('${item.cartId}', -1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">-</button>
+                                <button onclick="updateQuantity('${escapeHtml(item.cartId)}', -1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">-</button>
                                 <span class="text-xs font-semibold w-4 text-center">${item.quantity}</span>
-                                <button onclick="updateQuantity('${item.cartId}', 1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">+</button>
+                                <button onclick="updateQuantity('${escapeHtml(item.cartId)}', 1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">+</button>
                             </div>
                         </div>
                         <div class="text-right flex flex-col justify-between h-16">
                             <p class="font-bold text-sm">${item.price * item.quantity} DH</p>
-                            <button onclick="removeFromCart('${item.cartId}')" class="text-xs text-red-400 hover:text-red-600 transition underline"><i class="fas fa-trash-alt"></i></button>
+                            <button onclick="removeFromCart('${escapeHtml(item.cartId)}')" class="text-xs text-red-400 hover:text-red-600 transition underline"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>
                 `).join('');
@@ -955,6 +1398,20 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             // Check if click is outside the navbar and the menu is NOT hidden
             if (!nav.contains(event.target) && !mobileMenu.classList.contains('hidden')) {
                 mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Keyboard navigation for modal images
+        document.addEventListener('keydown', function(event) {
+            const productModal = document.getElementById('product-modal');
+            if (productModal && productModal.classList.contains('active')) {
+                if (event.key === 'ArrowLeft') {
+                    navigateModalImage(-1);
+                } else if (event.key === 'ArrowRight') {
+                    navigateModalImage(1);
+                } else if (event.key === 'Escape') {
+                    closeModal();
+                }
             }
         });
 
@@ -1007,7 +1464,13 @@ $settings = json_decode(file_get_contents('data/settings.json'), true);
             let total = 0;
             cart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
-                msg += `▪️ ${item.name} (${item.variant}) x${item.quantity} - ${itemTotal} <?php echo $settings['currency']; ?>\n`;
+                if (item.isBundle) {
+                    msg += `📦 *${item.name}* x${item.quantity} - ${itemTotal} <?php echo $settings['currency']; ?>\n`;
+                    msg += `   ├ ${item.items[0].name}\n`;
+                    msg += `   └ ${item.items[1].name}\n`;
+                } else {
+                    msg += `▪️ ${item.name} (${item.variant}) x${item.quantity} - ${itemTotal} <?php echo $settings['currency']; ?>\n`;
+                }
                 total += itemTotal;
             });
             msg += `\n💰 *TOTAL: ${total} <?php echo $settings['currency']; ?>*`;

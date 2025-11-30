@@ -20,124 +20,202 @@ if ($id) {
 
 // Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $arabicName = $_POST['arabicName'];
-    $price = $_POST['price'];
-    $oldPrice = $_POST['oldPrice'] ?: null;
-    $category = $_POST['category'];
-    $targetType = $_POST['type']; // newArrivals, allProducts, promoPacks
-    
-    // Image Upload
-    $imagePath = $_POST['current_image'] ?? '';
-    
-    // Debug info (remove in production)
-    // error_log(print_r($_FILES, true));
-
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-        $uploadDir = __DIR__ . '/../uploads/';
-        
-        // Ensure directory exists
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        $fileExtension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        
-        if (in_array($fileExtension, $allowedExtensions)) {
-            $fileName = time() . '_' . uniqid() . '.' . $fileExtension;
-            $targetFile = $uploadDir . $fileName;
-            
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                $imagePath = '/uploads/' . $fileName;
-            } else {
-                // Handle upload error
-                $error = "Erreur lors du téléchargement de l'image.";
-            }
-        } else {
-            $error = "Format d'image non supporté.";
-        }
-    } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) {
-        // Error other than "no file uploaded"
-        $error = "Erreur upload code: " . $_FILES['image']['error'];
+    // Validate CSRF token
+    if (!validateCsrfToken()) {
+        $error = "Session expirée, veuillez réessayer.";
     }
+    // Check for POST size limit exceeded
+    elseif (empty($_POST) && $_SERVER['CONTENT_LENGTH'] > 0) {
+        $error = "Le fichier envoyé est trop volumineux. Vérifiez la configuration upload_max_filesize et post_max_size.";
+    } else {
+        $name = trim(strip_tags($_POST['name'] ?? ''));
+        $arabicName = trim(strip_tags($_POST['arabicName'] ?? ''));
+        $price = filter_var($_POST['price'] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $oldPrice = !empty($_POST['oldPrice']) ? filter_var($_POST['oldPrice'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) : null;
+        $category = trim(strip_tags($_POST['category'] ?? ''));
+        $targetType = $_POST['type'] ?? 'allProducts';
+        
+        // Validate targetType against whitelist
+        $allowedTypes = ['newArrivals', 'allProducts', 'promoPacks'];
+        if (!in_array($targetType, $allowedTypes, true)) {
+            $targetType = 'allProducts';
+        }
+        
+        // Validate required fields
+        if (empty($name) || $price === false) {
+            $error = "Le nom et le prix sont obligatoires.";
+        }
+        
+        // New Fields
+        $group = $_POST['group'] ?? null;
+        if ($group && !in_array($group, ['A', 'B', 'C'], true)) {
+            $group = null;
+        }
+        
+        // Force pack type to custom as requested
+        $packType = 'custom';
+        
+        // Pack Logic Fields
+        $slot1Group = $_POST['slot1_group'] ?? 'A';
+        $slot2Group = $_POST['slot2_group'] ?? 'A';
+        
+        // Image Upload
+        $imagePath = $_POST['current_image'] ?? '';
 
-    // Handle Variants
-    $variants = [];
-    if (isset($_POST['variant_name'])) {
-        foreach ($_POST['variant_name'] as $index => $vName) {
-            if (empty($vName)) continue;
+        // Gallery Upload
+        $gallery = [];
+        if (isset($_POST['current_gallery'])) {
+            $gallery = $_POST['current_gallery'];
+        }
+        
+        if (isset($_FILES['gallery'])) {
+            $uploadDir = __DIR__ . '/../uploads/';
+            if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
             
-            $vColor = $_POST['variant_color'][$index] ?? '#000000';
-            $vImage = $_POST['variant_current_image'][$index] ?? '';
-
-            // Handle Variant Image Upload
-            if (isset($_FILES['variant_image']['name'][$index]) && $_FILES['variant_image']['error'][$index] === 0) {
-                $uploadDir = __DIR__ . '/../uploads/';
-                if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
-                
-                $vExt = strtolower(pathinfo($_FILES['variant_image']['name'][$index], PATHINFO_EXTENSION));
-                if (in_array($vExt, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-                    $vFileName = time() . '_v' . $index . '_' . uniqid() . '.' . $vExt;
-                    if (move_uploaded_file($_FILES['variant_image']['tmp_name'][$index], $uploadDir . $vFileName)) {
-                        $vImage = '/uploads/' . $vFileName;
+            foreach ($_FILES['gallery']['name'] as $key => $galleryFileName) {
+                if ($_FILES['gallery']['error'][$key] === 0) {
+                    $ext = strtolower(pathinfo($galleryFileName, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                        $uploadedFileName = time() . '_g' . $key . '_' . uniqid() . '.' . $ext;
+                        if (move_uploaded_file($_FILES['gallery']['tmp_name'][$key], $uploadDir . $uploadedFileName)) {
+                            $gallery[] = '/uploads/' . $uploadedFileName;
+                        }
                     }
                 }
             }
-
-            $variants[] = [
-                'name' => $vName,
-                'color' => $vColor,
-                'image' => $vImage
-            ];
         }
-    }
 
-    $newProduct = [
-        'id' => $id ? (int)$id : time(), // Simple ID generation
-        'name' => $name,
-        'arabicName' => $arabicName,
-        'image' => $imagePath,
-        'category' => $category,
-        'variants' => $variants
-    ];
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            $uploadDir = __DIR__ . '/../uploads/';
+            
+            // Ensure directory exists
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
 
-    if ($targetType === 'promoPacks') {
-        $newProduct['newPrice'] = (int)$price;
-        $newProduct['oldPrice'] = (int)$oldPrice;
-        $newProduct['description'] = $_POST['description'] ?? '';
-    } else {
-        $newProduct['price'] = (int)$price;
-        $newProduct['oldPrice'] = $oldPrice ? (int)$oldPrice : null;
-    }
+            $fileExtension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            if (in_array($fileExtension, $allowedExtensions)) {
+                // Validate MIME type
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($_FILES['image']['tmp_name']);
+                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-    // Update Data
-    if (!isset($error)) {
-        if ($id) {
-            // Edit existing
-            $found = false;
-            foreach ($data[$targetType] as &$p) {
-                if ($p['id'] == $id) {
-                    // Merge to keep variants if we didn't edit them
-                    // $newProduct['variants'] = $p['variants']; 
-                    $p = $newProduct;
-                    $found = true;
-                    break;
+                if (in_array($mimeType, $allowedMimeTypes)) {
+                    $fileName = time() . '_' . uniqid() . '.' . $fileExtension;
+                    $targetFile = $uploadDir . $fileName;
+                    
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                        $imagePath = '/uploads/' . $fileName;
+                    } else {
+                        $error = "Erreur lors du téléchargement de l'image.";
+                    }
+                } else {
+                    $error = "Type de fichier invalide (MIME type mismatch).";
                 }
+            } else {
+                $error = "Format d'image non supporté.";
             }
-            if (!$found) {
-                // Fallback: maybe the type was wrong? Try searching all types?
-                // For now, just error out or do nothing
-            }
-        } else {
-            // Add new
-            $data[$targetType][] = $newProduct;
+        } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== 4) {
+            // Error other than "no file uploaded"
+            $error = "Erreur upload code: " . $_FILES['image']['error'];
         }
 
-        file_put_contents('../data/products.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        header('Location: index.php');
-        exit;
-    }
+        // Handle Variants
+        $variants = [];
+        if (isset($_POST['variant_name'])) {
+            foreach ($_POST['variant_name'] as $index => $vName) {
+                if (empty($vName)) continue;
+                
+                $vColor = $_POST['variant_color'][$index] ?? '#000000';
+                $vImage = $_POST['variant_current_image'][$index] ?? '';
+
+                // Handle Variant Image Upload
+                if (isset($_FILES['variant_image']['name'][$index]) && $_FILES['variant_image']['error'][$index] === 0) {
+                    $uploadDir = __DIR__ . '/../uploads/';
+                    if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
+                    
+                    $vExt = strtolower(pathinfo($_FILES['variant_image']['name'][$index], PATHINFO_EXTENSION));
+                    if (in_array($vExt, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                        $vFileName = time() . '_v' . $index . '_' . uniqid() . '.' . $vExt;
+                        if (move_uploaded_file($_FILES['variant_image']['tmp_name'][$index], $uploadDir . $vFileName)) {
+                            $vImage = '/uploads/' . $vFileName;
+                        }
+                    }
+                }
+
+                $variants[] = [
+                    'name' => $vName,
+                    'color' => $vColor,
+                    'image' => $vImage
+                ];
+            }
+        }
+
+        $newProduct = [
+            'id' => $id ? (int)$id : time(), // Simple ID generation
+            'name' => $name,
+            'arabicName' => $arabicName,
+            'image' => $imagePath,
+            'gallery' => $gallery,
+            'category' => $category,
+            'variants' => $variants
+        ];
+
+        if ($targetType === 'promoPacks') {
+            $newProduct['newPrice'] = (int)$price;
+            $newProduct['oldPrice'] = (int)$oldPrice;
+            $newProduct['description'] = $_POST['description'] ?? '';
+            if ($packType) $newProduct['type'] = $packType;
+            
+            // Default Slots & Logic - only save if not empty
+            if (!empty($_POST['default_slot1'])) {
+                $newProduct['defaultSlot1'] = (int)$_POST['default_slot1'];
+            }
+            if (!empty($_POST['default_slot2'])) {
+                $newProduct['defaultSlot2'] = (int)$_POST['default_slot2'];
+            }
+            
+            $newProduct['slot1Group'] = $slot1Group;
+            $newProduct['slot2Group'] = $slot2Group;
+
+        } else {
+            $newProduct['price'] = (int)$price;
+            $newProduct['oldPrice'] = $oldPrice ? (int)$oldPrice : null;
+            if ($group) $newProduct['group'] = $group;
+        }
+
+        // Update Data
+        if (!isset($error)) {
+            if ($id) {
+                // Edit existing
+                $found = false;
+                foreach ($data[$targetType] as &$p) {
+                    if ($p['id'] == $id) {
+                        // Check if image has changed and delete old one
+                        if ($newProduct['image'] !== $p['image'] && !empty($p['image'])) {
+                            $oldImagePath = __DIR__ . '/..' . $p['image'];
+                            if (file_exists($oldImagePath)) {
+                                unlink($oldImagePath);
+                            }
+                        }
+                        
+                        $p = $newProduct;
+                        $found = true;
+                        break;
+                    }
+                }
+            } else {
+                // Add new
+                $data[$targetType][] = $newProduct;
+            }
+
+            file_put_contents('../data/products.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            header('Location: index.php');
+            exit;
+        }
+    } // End of else block for POST size check
 }
 ?>
 <!DOCTYPE html>
@@ -162,7 +240,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="current_image" value="<?php echo $product['image'] ?? ''; ?>">
+            <?php echo csrfField(); ?>
+            <input type="hidden" name="current_image" value="<?php echo htmlspecialchars($product['image'] ?? ''); ?>">
             <?php if($id): ?>
                 <input type="hidden" name="type" value="<?php echo $type; ?>">
             <?php endif; ?>
@@ -182,13 +261,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Nom du Produit</label>
-                    <input type="text" name="name" required value="<?php echo $product['name'] ?? ''; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    <label class="block text-sm font-medium text-gray-700">Nom du Produit <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" required value="<?php echo htmlspecialchars($product['name'] ?? ''); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" minlength="2">
+                    <p class="text-xs text-gray-500 mt-1">Le nom est obligatoire et ne peut pas être vide.</p>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Nom en Arabe</label>
-                    <input type="text" name="arabicName" required value="<?php echo $product['arabicName'] ?? ''; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-right" dir="rtl">
+                    <input type="text" name="arabicName" required value="<?php echo htmlspecialchars($product['arabicName'] ?? ''); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-right" dir="rtl">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -205,7 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Catégorie (Label)</label>
                     <div class="relative">
-                        <input type="text" name="category" list="category-suggestions" value="<?php echo $product['category'] ?? ''; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" placeholder="Ex: Classique, Nouveau, Pack Promo">
+                        <input type="text" name="category" list="category-suggestions" value="<?php echo htmlspecialchars($product['category'] ?? ''); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" placeholder="Ex: Classique, Nouveau, Pack Promo">
                         <datalist id="category-suggestions">
                             <option value="Classique">
                             <option value="Moderne">
@@ -220,10 +300,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p class="text-xs text-gray-500 mt-1">Sélectionnez une catégorie existante ou tapez-en une nouvelle.</p>
                 </div>
 
+                <?php if ($type !== 'promoPacks'): ?>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Groupe (Pour les Packs)</label>
+                    <select name="group" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                        <option value="">Aucun</option>
+                        <option value="A" <?php echo ($product['group'] ?? '') === 'A' ? 'selected' : ''; ?>>Groupe A (Basic)</option>
+                        <option value="B" <?php echo ($product['group'] ?? '') === 'B' ? 'selected' : ''; ?>>Groupe B (Premium)</option>
+                        <option value="C" <?php echo ($product['group'] ?? '') === 'C' ? 'selected' : ''; ?>>Groupe C (Luxe)</option>
+                    </select>
+                </div>
+                <?php endif; ?>
+
                 <?php if ($type === 'promoPacks'): ?>
+                <!-- Pack Type removed as requested, defaults to custom -->
+                
+                <div class="grid grid-cols-2 gap-4 bg-blue-50 p-4 rounded border border-blue-100">
+                    <div class="col-span-2">
+                        <h4 class="text-sm font-bold text-blue-800 mb-2">Configuration de la Composition</h4>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Groupe Requis (Slot 1)</label>
+                        <select name="slot1_group" class="w-full rounded border-gray-300 text-sm p-2 border">
+                            <option value="A" <?php echo ($product['slot1Group'] ?? 'A') === 'A' ? 'selected' : ''; ?>>Groupe A (Basic)</option>
+                            <option value="B" <?php echo ($product['slot1Group'] ?? '') === 'B' ? 'selected' : ''; ?>>Groupe B (Premium)</option>
+                            <option value="C" <?php echo ($product['slot1Group'] ?? '') === 'C' ? 'selected' : ''; ?>>Groupe C (Luxe)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Groupe Requis (Slot 2)</label>
+                        <select name="slot2_group" class="w-full rounded border-gray-300 text-sm p-2 border">
+                            <option value="A" <?php echo ($product['slot2Group'] ?? 'A') === 'A' ? 'selected' : ''; ?>>Groupe A (Basic)</option>
+                            <option value="B" <?php echo ($product['slot2Group'] ?? '') === 'B' ? 'selected' : ''; ?>>Groupe B (Premium)</option>
+                            <option value="C" <?php echo ($product['slot2Group'] ?? '') === 'C' ? 'selected' : ''; ?>>Groupe C (Luxe)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Description (Pour les packs)</label>
-                    <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"><?php echo $product['description'] ?? ''; ?></textarea>
+                    <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"><?php echo htmlspecialchars($product['description'] ?? ''); ?></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Produit par défaut (Slot 1)</label>
+                        <select name="default_slot1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <option value="">-- Aucun (client choisit) --</option>
+                            <?php 
+                            $allAvailableProducts = array_merge($data['newArrivals'] ?? [], $data['allProducts'] ?? []);
+                            foreach($allAvailableProducts as $ap): 
+                                $selected = (isset($product['defaultSlot1']) && $product['defaultSlot1'] == $ap['id']) ? 'selected' : '';
+                            ?>
+                                <option value="<?php echo $ap['id']; ?>" <?php echo $selected; ?>>
+                                    <?php echo htmlspecialchars($ap['name']); ?> (ID: <?php echo $ap['id']; ?>, Groupe: <?php echo $ap['group'] ?? 'N/A'; ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Produit par défaut (Slot 2)</label>
+                        <select name="default_slot2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <option value="">-- Aucun (client choisit) --</option>
+                            <?php 
+                            foreach($allAvailableProducts as $ap): 
+                                $selected = (isset($product['defaultSlot2']) && $product['defaultSlot2'] == $ap['id']) ? 'selected' : '';
+                            ?>
+                                <option value="<?php echo $ap['id']; ?>" <?php echo $selected; ?>>
+                                    <?php echo htmlspecialchars($ap['name']); ?> (ID: <?php echo $ap['id']; ?>, Groupe: <?php echo $ap['group'] ?? 'N/A'; ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
                 <?php endif; ?>
 
@@ -234,6 +382,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
                     <input type="file" name="image" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     <p class="text-xs text-gray-500 mt-1">Laisser vide pour conserver l'image actuelle.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Galerie d'images (Optionnel)</label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <?php 
+                        $gallery = $product['gallery'] ?? [];
+                        foreach($gallery as $img): 
+                        ?>
+                            <div class="relative">
+                                <img src="<?php echo $img; ?>" class="h-16 w-16 object-cover rounded border">
+                                <input type="hidden" name="current_gallery[]" value="<?php echo $img; ?>">
+                                <button type="button" onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">x</button>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <input type="file" name="gallery[]" multiple accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-500 mt-1">Vous pouvez sélectionner plusieurs images.</p>
                 </div>
 
                 <!-- Variants Section -->
@@ -264,6 +430,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Couleur</label>
                                 <input type="color" name="variant_color[]" value="<?php echo htmlspecialchars($variant['color'] ?? '#000000'); ?>" class="h-9 w-16 rounded border border-gray-300 p-1">
                             </div>
+
+                            <!-- Removed Variant Group Selector as requested -->
                             
                             <div class="flex-1">
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Image Spécifique</label>
@@ -306,6 +474,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="block text-xs font-bold text-gray-500 mb-1">Couleur</label>
                     <input type="color" name="variant_color[]" value="#000000" class="h-9 w-16 rounded border border-gray-300 p-1">
                 </div>
+
+                <!-- Removed Variant Group Selector -->
                 
                 <div class="flex-1">
                     <label class="block text-xs font-bold text-gray-500 mb-1">Image Spécifique</label>

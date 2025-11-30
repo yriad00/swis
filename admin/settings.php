@@ -5,17 +5,22 @@ $settingsFile = '../data/settings.json';
 $settings = json_decode(file_get_contents($settingsFile), true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $newSettings = [
-        'whatsapp_number' => $_POST['whatsapp_number'],
-        'site_title' => $_POST['site_title'],
-        'hero_title' => $_POST['hero_title'],
-        'hero_subtitle' => $_POST['hero_subtitle'],
-        'currency' => $_POST['currency']
-    ];
-    
-    file_put_contents($settingsFile, json_encode($newSettings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-    $success = "Paramètres mis à jour avec succès !";
-    $settings = $newSettings;
+    // Validate CSRF token
+    if (!validateCsrfToken()) {
+        $error = 'Session expirée, veuillez réessayer.';
+    } else {
+        $newSettings = [
+            'whatsapp_number' => preg_replace('/[^0-9]/', '', $_POST['whatsapp_number']), // Only digits
+            'site_title' => htmlspecialchars(strip_tags($_POST['site_title']), ENT_QUOTES, 'UTF-8'),
+            'hero_title' => htmlspecialchars(strip_tags($_POST['hero_title']), ENT_QUOTES, 'UTF-8'),
+            'hero_subtitle' => htmlspecialchars(strip_tags($_POST['hero_subtitle']), ENT_QUOTES, 'UTF-8'),
+            'currency' => htmlspecialchars(strip_tags($_POST['currency']), ENT_QUOTES, 'UTF-8')
+        ];
+        
+        file_put_contents($settingsFile, json_encode($newSettings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $success = "Paramètres mis à jour avec succès !";
+        $settings = $newSettings;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -52,8 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php echo $success; ?>
                 </div>
             <?php endif; ?>
+            
+            <?php if (isset($error)): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
 
             <form method="POST">
+                <?php echo csrfField(); ?>
                 <div class="space-y-6">
                     <div>
                         <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Contact & WhatsApp</h3>
