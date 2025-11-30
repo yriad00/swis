@@ -71,6 +71,20 @@ if (!file_exists($productsFile)) {
             border-radius: 4px;
         }
         
+        /* Hide scrollbar but allow scroll */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Safe area for iOS */
+        .safe-bottom {
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+        
         html {
             scroll-behavior: smooth;
             scroll-padding-top: 100px; /* Fix for fixed navbar covering content */
@@ -99,6 +113,23 @@ if (!file_exists($productsFile)) {
             box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
         }
         
+        /* Bundle Composer Styles */
+        #bundle-modal .bundle-slot.active {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
+        }
+        
+        #bundle-modal .variant-card {
+            transition: all 0.2s ease;
+        }
+        #bundle-modal .variant-card:active {
+            transform: scale(0.95);
+        }
+        #bundle-modal .variant-card.selected {
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+        }
+        
         /* Modal Transitions */
         .modal {
             transition: opacity 0.3s ease-in-out;
@@ -120,11 +151,11 @@ if (!file_exists($productsFile)) {
         /* Variant Selection Styles */
         .variant-option {
             transition: all 0.2s;
-            border: 1px solid #e5e7eb;
+            border: 2px solid transparent;
         }
         .variant-option.selected {
-            border-color: #D4AF37;
-            box-shadow: 0 0 0 1px #D4AF37;
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
         }
         
         /* New Badge Animation */
@@ -447,88 +478,87 @@ if (!file_exists($productsFile)) {
     <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden fade-in"></div>
 
     <!-- PRODUCT DETAILS MODAL (POPUP) -->
-    <div id="product-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div id="product-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center p-3 md:p-4">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black bg-opacity-70" onclick="closeModal()"></div>
+        <div class="absolute inset-0 bg-black bg-opacity-80" onclick="closeModal()"></div>
         
-        <!-- Modal Content -->
-        <div class="modal-content bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col md:flex-row max-h-[90vh] overflow-y-auto md:overflow-visible">
-            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-white rounded-full p-2 shadow-md hover:text-brand-red transition">
-                <i class="fas fa-times text-xl"></i>
+        <!-- Modal Content - Centered with rounded corners -->
+        <div class="modal-content bg-white w-full max-h-[88vh] md:max-h-[85vh] md:w-[90%] md:max-w-4xl rounded-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col md:flex-row">
+            
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-3 right-3 z-30 bg-white/90 text-gray-600 rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:text-brand-red transition">
+                <i class="fas fa-times text-lg"></i>
             </button>
 
-            <!-- Image Side -->
-            <div class="md:w-1/2 bg-gray-100 relative h-64 md:h-auto group">
+            <!-- Image Side - 45vh on mobile, proper height on desktop -->
+            <div class="relative w-full h-[42vh] md:h-auto md:w-1/2 bg-gray-100 flex-shrink-0">
                 <img id="modal-image" src="" alt="Watch Detail" class="w-full h-full object-cover transition duration-500">
                 
                 <!-- Navigation Arrows -->
-                <button id="modal-prev-btn" onclick="navigateModalImage(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-brand-black w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 hidden">
+                <button id="modal-prev-btn" onclick="navigateModalImage(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button id="modal-next-btn" onclick="navigateModalImage(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-brand-black w-10 h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 hidden">
+                <button id="modal-next-btn" onclick="navigateModalImage(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition">
                     <i class="fas fa-chevron-right"></i>
                 </button>
                 
                 <!-- Image Counter -->
-                <div id="modal-image-counter" class="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 text-xs font-bold rounded-full hidden">
+                <div id="modal-image-counter" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 text-xs font-bold rounded-full hidden">
                     <span id="modal-current-index">1</span> / <span id="modal-total-images">1</span>
                 </div>
                 
-                <div class="absolute bottom-4 left-4 bg-white px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full shadow-sm">
-                    Swis Brands Original
-                </div>
+                <!-- Gallery Mode Toggle -->
+                <button id="modal-gallery-toggle" onclick="toggleModalGalleryMode()" class="absolute top-3 left-3 bg-white/90 hover:bg-white text-brand-black px-3 py-1.5 rounded-full shadow text-xs font-bold hidden">
+                    <i class="fas fa-images mr-1"></i><span id="gallery-toggle-text">Toutes</span>
+                </button>
             </div>
 
             <!-- Details Side -->
-            <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto">
-                <div>
-                    <span id="modal-category" class="text-brand-gold font-bold uppercase tracking-widest text-xs mb-2 block">Category</span>
-                    <h2 id="modal-title" class="text-2xl md:text-3xl font-serif font-bold text-brand-black mb-1">Product Title</h2>
-                    <h3 id="modal-arabic" class="text-lg md:text-xl font-arabic text-gray-500 mb-4">اسم المنتج</h3>
-                    
-                    <p class="text-sm md:text-base text-gray-600 mb-6 leading-relaxed">
-                        Cette montre incarne l'élégance intemporelle. Dotée d'un mouvement de précision et d'un design sophistiqué, elle est l'accessoire parfait.
-                        <br><span class="font-arabic text-xs md:text-sm text-gray-500 mt-2 block">ساعة أنيقة بتصميم عصري وجودة عالية.</span>
-                    </p>
+            <div class="flex-1 md:w-1/2 flex flex-col bg-white overflow-hidden">
+                <div class="flex-1 overflow-y-auto p-4 md:p-6">
+                    <span id="modal-category" class="text-brand-gold font-bold uppercase tracking-widest text-[10px] md:text-xs mb-1 block">Category</span>
+                    <h2 id="modal-title" class="text-lg md:text-2xl font-serif font-bold text-brand-black mb-0.5">Product Title</h2>
+                    <h3 id="modal-arabic" class="text-sm md:text-lg font-arabic text-gray-500 mb-2">اسم المنتج</h3>
 
                     <!-- VARIANT SELECTION (COLOR) -->
-                    <div id="variant-section" class="mb-8 hidden">
-                        <label class="block text-xs font-bold uppercase tracking-widest text-brand-black mb-3">
+                    <div id="variant-section" class="mb-3 hidden">
+                        <label class="block text-[10px] md:text-xs font-bold uppercase tracking-widest text-brand-black mb-2">
                             Couleur / اللون: <span id="selected-variant-name" class="text-brand-gold ml-1"></span>
                         </label>
-                        <div id="variant-options" class="flex flex-wrap gap-3">
+                        <div id="variant-options" class="flex flex-wrap gap-2">
                             <!-- Variants injected here by JS -->
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-4 mb-6">
-                        <span id="modal-price" class="text-3xl md:text-4xl font-bold text-brand-black">000 DH</span>
-                        <span id="modal-old-price" class="text-lg md:text-xl text-gray-400 line-through hidden">000 DH</span>
-                    </div>
-
-                    <!-- Quantity Selector -->
-                    <div class="flex items-center mb-8">
-                        <span class="text-xs font-bold uppercase tracking-widest text-brand-black mr-4">Quantité:</span>
+                    <!-- Price & Quantity Row -->
+                    <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span id="modal-price" class="text-2xl md:text-3xl font-bold text-brand-black">000 DH</span>
+                            <span id="modal-old-price" class="text-sm md:text-lg text-gray-400 line-through hidden">000 DH</span>
+                        </div>
                         <div class="flex items-center border border-gray-200 rounded-md">
-                            <button onclick="adjustModalQty(-1)" class="px-4 py-2 hover:bg-gray-50 text-gray-600 transition">-</button>
-                            <span id="modal-qty" class="px-4 py-2 font-bold text-brand-black min-w-[3rem] text-center">1</span>
-                            <button onclick="adjustModalQty(1)" class="px-4 py-2 hover:bg-gray-50 text-gray-600 transition">+</button>
+                            <button onclick="adjustModalQty(-1)" class="px-3 py-1.5 hover:bg-gray-50 text-gray-600 transition">-</button>
+                            <span id="modal-qty" class="px-3 py-1.5 font-bold text-brand-black min-w-[2rem] text-center text-sm">1</span>
+                            <button onclick="adjustModalQty(1)" class="px-3 py-1.5 hover:bg-gray-50 text-gray-600 transition">+</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex gap-4 mt-auto">
-                    <button id="modal-add-btn" class="flex-1 bg-brand-black text-white py-4 rounded-lg uppercase tracking-widest font-bold hover:bg-brand-gold transition shadow-lg text-sm md:text-base">
-                        Ajouter au Panier
-                    </button>
-                    <button id="modal-buy-now-btn" class="flex-none bg-green-100 text-green-600 p-4 rounded-lg hover:bg-green-200 transition flex items-center justify-center" title="Acheter maintenant">
-                        <i class="fab fa-whatsapp text-2xl"></i>
-                    </button>
-                </div>
-                
-                <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
-                    <span class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-1"></i> En Stock</span>
-                    <span class="flex items-center"><i class="fas fa-truck mr-1"></i> Livraison 24h/48h</span>
+                <!-- Actions - Fixed at bottom -->
+                <div class="p-4 pt-2 border-t bg-white">
+                    <div class="flex gap-3">
+                        <button id="modal-add-btn" class="flex-1 bg-brand-black text-white py-3.5 rounded-lg uppercase tracking-widest font-bold hover:bg-brand-gold transition shadow-lg text-xs md:text-sm">
+                            Ajouter au Panier
+                        </button>
+                        <button id="modal-buy-now-btn" class="flex-none bg-green-100 text-green-600 px-4 py-3.5 rounded-lg hover:bg-green-200 transition flex items-center justify-center" title="Acheter maintenant">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-2 flex items-center justify-center gap-4 text-[10px] md:text-xs text-gray-500">
+                        <span class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-1"></i> En Stock</span>
+                        <span class="flex items-center"><i class="fas fa-truck mr-1"></i> Livraison 24h/48h</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -593,70 +623,151 @@ if (!file_exists($productsFile)) {
         </div>
     </div>
 
-    <!-- *** CUSTOM BUNDLE MODAL *** -->
-    <div id="bundle-modal" class="modal fixed inset-0 z-[65] flex items-center justify-center p-4 hidden">
-        <div class="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm" onclick="closeBundleModal()"></div>
-        <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative z-10 flex flex-col max-h-[90vh]">
-            
-            <!-- Header -->
-            <div class="p-6 border-b flex justify-between items-center bg-brand-black text-white rounded-t-2xl">
-                <div>
-                    <h2 class="font-serif text-xl font-bold" id="bundle-title">Composez votre Pack</h2>
+    <!-- *** FULL SCREEN BUNDLE COMPOSER *** -->
+    <div id="bundle-modal" class="fixed inset-0 z-[65] bg-white hidden" style="overflow: hidden;">
+        
+        <!-- Fixed Header -->
+        <div class="fixed top-0 left-0 right-0 z-50 bg-brand-black text-white shadow-lg">
+            <div class="flex items-center justify-between px-4 py-3">
+                <button onclick="closeBundleModal()" class="flex items-center gap-2 text-gray-300 hover:text-white">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="text-sm hidden sm:inline">Retour</span>
+                </button>
+                <div class="text-center">
+                    <h2 class="font-serif text-lg font-bold" id="bundle-title">Composez votre Pack</h2>
                     <p class="text-xs text-brand-gold" id="bundle-subtitle">Sélectionnez 2 montres</p>
                 </div>
-                <button onclick="closeBundleModal()" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <div class="w-16"></div>
             </div>
-
-            <!-- Slots Area -->
-            <div class="p-6 bg-gray-50 border-b">
-                <div class="flex justify-center gap-4 md:gap-8">
-                    <!-- Slot 1 -->
-                    <div id="slot-1" onclick="activateSlot(1)" class="bundle-slot w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-brand-gold transition bg-white relative overflow-hidden group">
-                        <div class="placeholder text-center p-2">
-                            <i class="fas fa-plus text-2xl text-gray-300 mb-2 group-hover:text-brand-gold transition"></i>
-                            <p class="text-xs text-gray-400 font-bold uppercase">Montre 1</p>
-                            <p class="text-[10px] text-gray-400 slot-rule"></p>
+            
+            <!-- Compact Slots - Always Visible -->
+            <div class="bg-gray-900 px-4 py-3 border-t border-gray-700">
+                <div class="flex justify-center items-center gap-3">
+                    <!-- Slot 1 Mini -->
+                    <div id="slot-1" onclick="activateSlot(1)" class="bundle-slot w-14 h-14 sm:w-16 sm:h-16 border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-gold transition bg-gray-800 relative overflow-hidden">
+                        <div class="placeholder">
+                            <i class="fas fa-plus text-gray-500 text-sm"></i>
                         </div>
                         <img src="" class="slot-img absolute inset-0 w-full h-full object-cover hidden">
-                        <button onclick="clearSlot(event, 1)" class="clear-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs hidden items-center justify-center z-10"><i class="fas fa-times"></i></button>
+                        <button onclick="clearSlot(event, 1)" class="clear-btn absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-[10px] hidden items-center justify-center z-10 shadow"><i class="fas fa-times"></i></button>
+                        <span class="slot-label absolute bottom-0 left-0 right-0 bg-black/70 text-[9px] text-center text-white py-0.5 truncate px-1"></span>
                     </div>
-
-                    <!-- Plus Icon -->
-                    <div class="flex items-center justify-center text-gray-300">
-                        <i class="fas fa-plus text-xl"></i>
-                    </div>
-
-                    <!-- Slot 2 -->
-                    <div id="slot-2" onclick="activateSlot(2)" class="bundle-slot w-32 h-32 md:w-40 md:h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-brand-gold transition bg-white relative overflow-hidden group">
-                        <div class="placeholder text-center p-2">
-                            <i class="fas fa-plus text-2xl text-gray-300 mb-2 group-hover:text-brand-gold transition"></i>
-                            <p class="text-xs text-gray-400 font-bold uppercase">Montre 2</p>
-                            <p class="text-[10px] text-gray-400 slot-rule"></p>
+                    
+                    <!-- Plus -->
+                    <div class="text-brand-gold text-lg">+</div>
+                    
+                    <!-- Slot 2 Mini -->
+                    <div id="slot-2" onclick="activateSlot(2)" class="bundle-slot w-14 h-14 sm:w-16 sm:h-16 border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-gold transition bg-gray-800 relative overflow-hidden">
+                        <div class="placeholder">
+                            <i class="fas fa-plus text-gray-500 text-sm"></i>
                         </div>
                         <img src="" class="slot-img absolute inset-0 w-full h-full object-cover hidden">
-                        <button onclick="clearSlot(event, 2)" class="clear-btn absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs hidden items-center justify-center z-10"><i class="fas fa-times"></i></button>
+                        <button onclick="clearSlot(event, 2)" class="clear-btn absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-[10px] hidden items-center justify-center z-10 shadow"><i class="fas fa-times"></i></button>
+                        <span class="slot-label absolute bottom-0 left-0 right-0 bg-black/70 text-[9px] text-center text-white py-0.5 truncate px-1"></span>
+                    </div>
+                    
+                    <!-- Price Badge -->
+                    <div class="ml-3 text-right">
+                        <div class="text-brand-gold font-bold text-lg" id="bundle-price-display">--</div>
+                        <div class="text-[10px] text-gray-400">Prix Pack</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Selection Area -->
-            <div class="flex-1 overflow-y-auto p-6 bg-white">
-                <h3 class="text-sm font-bold uppercase tracking-widest mb-4 text-gray-500">
-                    Choisissez pour <span id="active-slot-label" class="text-brand-black">Montre 1</span>:
+        </div>
+        
+        <!-- Scrollable Content Area -->
+        <div class="pt-28 pb-24 h-full overflow-y-auto" id="bundle-scroll-area">
+            
+            <!-- Product Selection View -->
+            <div id="bundle-selection-area" class="px-4 py-4">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-3 text-gray-500">
+                    <i class="fas fa-hand-pointer mr-1"></i>
+                    Choisissez pour <span id="active-slot-label" class="text-brand-black">Montre 1</span>
                 </h3>
-                <div id="bundle-products-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div id="bundle-products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     <!-- Products injected here -->
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div class="p-6 border-t bg-gray-50">
-                <button id="add-bundle-btn" onclick="addBundleToCart()" disabled class="w-full bg-gray-300 text-white py-4 rounded-lg uppercase tracking-widest font-bold transition shadow-lg cursor-not-allowed">
-                    Ajouter au Panier
-                </button>
+            
+            <!-- Variant Selection View -->
+            <div id="bundle-variant-area" class="hidden">
+                <!-- Back Button -->
+                <div class="sticky top-0 bg-white z-10 px-4 py-3 border-b shadow-sm">
+                    <button onclick="backToProducts()" class="flex items-center gap-2 text-gray-600 hover:text-brand-black text-sm font-medium">
+                        <i class="fas fa-chevron-left"></i> Changer de montre
+                    </button>
+                </div>
+                
+                <!-- Two Column Layout on larger screens -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-6 p-4">
+                    
+                    <!-- Left: Image Gallery -->
+                    <div class="relative">
+                        <!-- Main Image -->
+                        <div class="relative aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg">
+                            <img id="bundle-variant-image" src="" class="w-full h-full object-cover">
+                            
+                            <!-- Navigation Arrows -->
+                            <button id="bundle-prev-btn" onclick="navigateBundleGallery(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-10 h-10 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button id="bundle-next-btn" onclick="navigateBundleGallery(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-10 h-10 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            
+                            <!-- Image Counter -->
+                            <div id="bundle-image-counter" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 text-xs rounded-full hidden">
+                                <span id="bundle-current-idx">1</span> / <span id="bundle-total-imgs">1</span>
+                            </div>
+                            
+                            <!-- Gallery Mode Toggle -->
+                            <button id="bundle-gallery-toggle" onclick="toggleBundleGalleryMode()" class="absolute top-2 left-2 bg-white/90 hover:bg-white text-brand-black px-2 py-1 rounded-full shadow text-xs font-bold hidden">
+                                <i class="fas fa-images mr-1"></i><span id="bundle-gallery-toggle-text">Toutes</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Gallery Thumbnails -->
+                        <div id="bundle-gallery-thumbs" class="mt-3 hidden">
+                            <div id="bundle-gallery-grid" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <!-- Gallery thumbs -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Product Info & Variants -->
+                    <div class="mt-3 md:mt-0 flex flex-col">
+                        <!-- Product Name -->
+                        <h3 id="bundle-variant-product-name" class="font-serif text-lg md:text-2xl font-bold mb-2 md:mb-4"></h3>
+                        
+                        <!-- Confirm Button - Show early on mobile -->
+                        <div class="order-first md:order-last mb-3 md:mb-0 md:mt-4">
+                            <button id="confirm-variant-btn" onclick="confirmBundleVariant()" class="w-full bg-brand-gold text-white py-3 md:py-4 rounded-xl uppercase tracking-widest text-xs md:text-sm font-bold hover:bg-brand-black transition shadow-lg flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                Sélectionner cette montre
+                            </button>
+                        </div>
+                        
+                        <!-- Variant Selection -->
+                        <div class="mb-2 md:mb-4">
+                            <h4 class="text-[10px] md:text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 flex items-center gap-2">
+                                <i class="fas fa-palette text-brand-gold"></i>
+                                Choisissez la couleur
+                            </h4>
+                            <div id="bundle-variant-options" class="flex flex-wrap gap-2">
+                                <!-- Variant cards injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+        
+        <!-- Fixed Bottom Action Bar -->
+        <div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-lg px-4 py-3 safe-bottom">
+            <button id="add-bundle-btn" onclick="addBundleToCart()" disabled class="w-full bg-gray-300 text-white py-4 rounded-xl uppercase tracking-widest font-bold transition shadow-lg cursor-not-allowed flex items-center justify-center gap-2">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Sélectionnez 2 montres</span>
+            </button>
         </div>
     </div>
 
@@ -778,6 +889,18 @@ if (!file_exists($productsFile)) {
             name: ""
         };
         let activeSlot = 1;
+        
+        // Bundle variant selection state
+        let pendingBundleProduct = null;
+        let pendingBundleVariantIndex = 0;
+        let pendingBundleSlot = null;
+        let bundleGalleryImages = [];
+        let bundleGalleryIndex = 0;
+        
+        // Bundle gallery mode tracking
+        let bundleGalleryMode = 'variant'; // 'variant' or 'all'
+        let bundleAllProductImages = [];
+        let bundleVariantImages = [];
 
         function openBundleModal(packId) {
             const pack = promoPacks.find(p => p.id === packId);
@@ -802,25 +925,38 @@ if (!file_exists($productsFile)) {
             // Reset UI
             document.getElementById('bundle-title').textContent = pack.name;
             document.getElementById('bundle-subtitle').textContent = pack.description;
+            document.getElementById('bundle-price-display').textContent = pack.newPrice + ' DH';
             
             resetSlotUI(1);
             resetSlotUI(2);
             
-            // Set Rules Text using stored values
-            document.querySelector('#slot-1 .slot-rule').textContent = `(Groupe ${currentBundle.slot1Group})`;
-            document.querySelector('#slot-2 .slot-rule').textContent = `(Groupe ${currentBundle.slot2Group})`;
+            // Reset variant picker state
+            document.getElementById('bundle-variant-area').classList.add('hidden');
+            document.getElementById('bundle-selection-area').classList.remove('hidden');
+            pendingBundleProduct = null;
+            
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
 
             const modal = document.getElementById('bundle-modal');
             modal.classList.remove('hidden');
             // Add active class for animation
             setTimeout(() => { modal.classList.add('active'); }, 10);
             
-            // Handle Default Slots
+            // Handle Default Slots - for products with variants, select first variant automatically
             if (pack.defaultSlot1) {
-                selectBundleProduct(pack.defaultSlot1, null, 1); // Force slot 1
+                const defaultProduct1 = availableForBundle.find(p => p.id === pack.defaultSlot1);
+                if (defaultProduct1) {
+                    const variant1 = defaultProduct1.variants && defaultProduct1.variants.length > 0 ? defaultProduct1.variants[0] : null;
+                    finalizeBundleSelection(defaultProduct1, variant1, 1);
+                }
             }
             if (pack.defaultSlot2) {
-                selectBundleProduct(pack.defaultSlot2, null, 2); // Force slot 2
+                const defaultProduct2 = availableForBundle.find(p => p.id === pack.defaultSlot2);
+                if (defaultProduct2) {
+                    const variant2 = defaultProduct2.variants && defaultProduct2.variants.length > 0 ? defaultProduct2.variants[0] : null;
+                    finalizeBundleSelection(defaultProduct2, variant2, 2);
+                }
             }
 
             // If no defaults, activate slot 1
@@ -830,13 +966,17 @@ if (!file_exists($productsFile)) {
                 activateSlot(2);
             } else {
                 // Both defaults set, just render products for slot 1
+                activateSlot(1);
                 renderBundleProducts(currentBundle.slot1Group);
             }
+            
+            updateBundleButton();
         }
 
         function closeBundleModal() {
             const modal = document.getElementById('bundle-modal');
             modal.classList.remove('active');
+            document.body.style.overflow = '';
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
@@ -857,15 +997,26 @@ if (!file_exists($productsFile)) {
         function activateSlot(slotNum) {
             activeSlot = slotNum;
             
-            // Highlight active slot
-            document.querySelectorAll('.bundle-slot').forEach(el => el.classList.remove('border-brand-gold', 'bg-brand-gold/5'));
+            // Highlight active slot - update for compact header style
+            document.querySelectorAll('.bundle-slot').forEach(el => {
+                el.classList.remove('active', 'border-brand-gold');
+                el.classList.add('border-gray-600');
+            });
             const activeEl = document.getElementById(`slot-${slotNum}`);
-            activeEl.classList.add('border-brand-gold', 'bg-brand-gold/5');
+            activeEl.classList.add('active', 'border-brand-gold');
+            activeEl.classList.remove('border-gray-600');
             
             document.getElementById('active-slot-label').textContent = `Montre ${slotNum}`;
 
             // Filter Products using stored groups from currentBundle
             const requiredGroup = (slotNum === 1) ? currentBundle.slot1Group : currentBundle.slot2Group;
+            
+            // Go back to product selection view
+            document.getElementById('bundle-variant-area').classList.add('hidden');
+            document.getElementById('bundle-selection-area').classList.remove('hidden');
+            
+            // Scroll to top
+            document.getElementById('bundle-scroll-area').scrollTop = 0;
             
             renderBundleProducts(requiredGroup);
         }
@@ -901,23 +1052,267 @@ if (!file_exists($productsFile)) {
             const product = availableForBundle.find(p => p.id === productId);
             if (!product) return;
 
-            let selectedItem = {
-                id: product.id,
-                name: product.name,
-                image: product.image,
-                variantName: "Standard"
-            };
-
             // Determine which slot to use
             const targetSlot = forceSlot || activeSlot;
+            
+            // Check if product has variants - if so, show variant picker
+            if (product.variants && product.variants.length > 0) {
+                showBundleVariantPicker(product, targetSlot);
+                return;
+            }
 
-            // If variantIndex is provided (future proofing), use it. 
-            // Currently we select product, and maybe later ask for variant? 
-            // For now, just select the main product.
+            // No variants - select directly
+            finalizeBundleSelection(product, null, targetSlot);
+        }
+        
+        function showBundleVariantPicker(product, targetSlot) {
+            pendingBundleProduct = product;
+            pendingBundleSlot = targetSlot;
+            pendingBundleVariantIndex = 0;
+            
+            // Hide products grid, show variant picker
+            document.getElementById('bundle-selection-area').classList.add('hidden');
+            document.getElementById('bundle-variant-area').classList.remove('hidden');
+            
+            // Scroll to top
+            document.getElementById('bundle-scroll-area').scrollTop = 0;
+            
+            // Set product info
+            document.getElementById('bundle-variant-product-name').textContent = product.name;
+            
+            // Build variant options - larger cards with color swatch for better mobile UX
+            const optionsHtml = product.variants.map((v, index) => `
+                <div onclick="selectBundleVariant(${index})" 
+                     class="variant-card cursor-pointer rounded-xl overflow-hidden border-2 ${index === 0 ? 'selected border-brand-gold' : 'border-gray-200'} bg-white shadow-sm hover:shadow-md transition-all flex items-center gap-3 p-2 min-w-[140px]"
+                     data-variant-index="${index}">
+                    <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                        <img src="${escapeHtml(v.image || product.image)}" class="w-full h-full object-cover pointer-events-none">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0" style="background-color: ${v.color || '#ccc'}"></span>
+                            <span class="text-sm font-medium truncate">${escapeHtml(v.name)}</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-brand-gold ${index === 0 ? '' : 'hidden'}"></i>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('bundle-variant-options').innerHTML = optionsHtml;
+            
+            // Select first variant by default
+            selectBundleVariant(0);
+        }
+        
+        function selectBundleVariant(variantIndex) {
+            if (!pendingBundleProduct) return;
+            
+            pendingBundleVariantIndex = variantIndex;
+            const variant = pendingBundleProduct.variants[variantIndex];
+            
+            // Build ALL product images (for toggle)
+            bundleAllProductImages = [pendingBundleProduct.image];
+            if (pendingBundleProduct.gallery && pendingBundleProduct.gallery.length > 0) {
+                pendingBundleProduct.gallery.forEach(img => {
+                    if (!bundleAllProductImages.includes(img)) {
+                        bundleAllProductImages.push(img);
+                    }
+                });
+            }
+            
+            // Build variant-specific gallery
+            bundleVariantImages = [];
+            
+            // Add variant's main image first
+            if (variant.image) {
+                bundleVariantImages.push(variant.image);
+            }
+            
+            // Add variant-specific gallery if it exists
+            if (variant.gallery && variant.gallery.length > 0) {
+                variant.gallery.forEach(img => {
+                    if (!bundleVariantImages.includes(img)) {
+                        bundleVariantImages.push(img);
+                    }
+                });
+            }
+            
+            // Fallback to product image if variant has no images
+            if (bundleVariantImages.length === 0) {
+                bundleVariantImages.push(pendingBundleProduct.image);
+            }
+            
+            // Start with variant images
+            bundleGalleryMode = 'variant';
+            bundleGalleryImages = [...bundleVariantImages];
+            bundleGalleryIndex = 0;
+            
+            // Update preview image
+            document.getElementById('bundle-variant-image').src = bundleGalleryImages[0];
+            
+            // Show/hide gallery toggle button
+            const toggleBtn = document.getElementById('bundle-gallery-toggle');
+            if (bundleAllProductImages.length > bundleVariantImages.length) {
+                toggleBtn.classList.remove('hidden');
+                document.getElementById('bundle-gallery-toggle-text').textContent = 'Toutes';
+            } else {
+                toggleBtn.classList.add('hidden');
+            }
+            
+            // Update navigation UI
+            updateBundleGalleryNav();
+            updateBundleGalleryThumbs();
+            
+            // Build gallery thumbnails if more than 1 image - horizontally scrollable
+            const galleryThumbsContainer = document.getElementById('bundle-gallery-thumbs');
+            const galleryGrid = document.getElementById('bundle-gallery-grid');
+            
+            if (bundleGalleryImages.length > 1) {
+                galleryThumbsContainer.classList.remove('hidden');
+                galleryGrid.innerHTML = bundleGalleryImages.map((img, idx) => `
+                    <div onclick="jumpToBundleGallery(${idx})" 
+                         class="bundle-gallery-thumb cursor-pointer rounded-lg overflow-hidden w-14 h-14 flex-shrink-0 border-2 ${idx === 0 ? 'border-brand-gold' : 'border-gray-200'} transition-all">
+                        <img src="${escapeHtml(img)}" class="w-full h-full object-cover pointer-events-none">
+                    </div>
+                `).join('');
+            } else {
+                galleryThumbsContainer.classList.add('hidden');
+            }
+            
+            // Update selection state on variant cards
+            document.querySelectorAll('.variant-card').forEach((card) => {
+                const idx = parseInt(card.dataset.variantIndex);
+                const checkIcon = card.querySelector('.fa-check-circle');
+                if (idx === variantIndex) {
+                    card.classList.remove('border-gray-200');
+                    card.classList.add('selected', 'border-brand-gold');
+                    if (checkIcon) checkIcon.classList.remove('hidden');
+                } else {
+                    card.classList.remove('selected', 'border-brand-gold');
+                    card.classList.add('border-gray-200');
+                    if (checkIcon) checkIcon.classList.add('hidden');
+                }
+            });
+        }
+        
+        function toggleBundleGalleryMode() {
+            if (bundleGalleryMode === 'variant') {
+                // Switch to all product images
+                bundleGalleryMode = 'all';
+                bundleGalleryImages = [...bundleAllProductImages];
+                document.getElementById('bundle-gallery-toggle-text').textContent = pendingBundleProduct.variants[pendingBundleVariantIndex].name;
+            } else {
+                // Switch back to variant images
+                bundleGalleryMode = 'variant';
+                bundleGalleryImages = [...bundleVariantImages];
+                document.getElementById('bundle-gallery-toggle-text').textContent = 'Toutes';
+            }
+            
+            bundleGalleryIndex = 0;
+            document.getElementById('bundle-variant-image').src = bundleGalleryImages[0];
+            updateBundleGalleryNav();
+            
+            // Rebuild thumbnails
+            const galleryThumbsContainer = document.getElementById('bundle-gallery-thumbs');
+            const galleryGrid = document.getElementById('bundle-gallery-grid');
+            
+            if (bundleGalleryImages.length > 1) {
+                galleryThumbsContainer.classList.remove('hidden');
+                galleryGrid.innerHTML = bundleGalleryImages.map((img, idx) => `
+                    <div onclick="jumpToBundleGallery(${idx})" 
+                         class="bundle-gallery-thumb cursor-pointer rounded-lg overflow-hidden w-14 h-14 flex-shrink-0 border-2 ${idx === 0 ? 'border-brand-gold' : 'border-gray-200'} transition-all">
+                        <img src="${escapeHtml(img)}" class="w-full h-full object-cover pointer-events-none">
+                    </div>
+                `).join('');
+            } else {
+                galleryThumbsContainer.classList.add('hidden');
+            }
+        }
+        
+        function navigateBundleGallery(direction) {
+            if (bundleGalleryImages.length <= 1) return;
+            
+            bundleGalleryIndex += direction;
+            if (bundleGalleryIndex < 0) bundleGalleryIndex = bundleGalleryImages.length - 1;
+            if (bundleGalleryIndex >= bundleGalleryImages.length) bundleGalleryIndex = 0;
+            
+            document.getElementById('bundle-variant-image').src = bundleGalleryImages[bundleGalleryIndex];
+            updateBundleGalleryNav();
+            updateBundleGalleryThumbs();
+        }
+        
+        function jumpToBundleGallery(index) {
+            bundleGalleryIndex = index;
+            document.getElementById('bundle-variant-image').src = bundleGalleryImages[bundleGalleryIndex];
+            updateBundleGalleryNav();
+            updateBundleGalleryThumbs();
+        }
+        
+        function updateBundleGalleryNav() {
+            const prevBtn = document.getElementById('bundle-prev-btn');
+            const nextBtn = document.getElementById('bundle-next-btn');
+            const counter = document.getElementById('bundle-image-counter');
+            
+            if (bundleGalleryImages.length > 1) {
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+                counter.classList.remove('hidden');
+                document.getElementById('bundle-current-idx').textContent = bundleGalleryIndex + 1;
+                document.getElementById('bundle-total-imgs').textContent = bundleGalleryImages.length;
+            } else {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+                counter.classList.add('hidden');
+            }
+        }
+        
+        function updateBundleGalleryThumbs() {
+            document.querySelectorAll('.bundle-gallery-thumb').forEach((thumb, idx) => {
+                if (idx === bundleGalleryIndex) {
+                    thumb.classList.remove('border-gray-200');
+                    thumb.classList.add('border-brand-gold');
+                } else {
+                    thumb.classList.remove('border-brand-gold');
+                    thumb.classList.add('border-gray-200');
+                }
+            });
+        }
+        
+        function confirmBundleVariant() {
+            if (!pendingBundleProduct) return;
+            
+            const variant = pendingBundleProduct.variants[pendingBundleVariantIndex];
+            finalizeBundleSelection(pendingBundleProduct, variant, pendingBundleSlot);
+            
+            // Reset and go back to products view
+            backToProducts();
+        }
+        
+        function backToProducts() {
+            document.getElementById('bundle-variant-area').classList.add('hidden');
+            document.getElementById('bundle-selection-area').classList.remove('hidden');
+            pendingBundleProduct = null;
+            bundleGalleryImages = [];
+            bundleGalleryIndex = 0;
+            
+            // Scroll to top
+            document.getElementById('bundle-scroll-area').scrollTop = 0;
+        }
+        
+        function finalizeBundleSelection(product, variant, targetSlot) {
+            let selectedItem = {
+                id: product.id,
+                name: variant ? `${product.name} (${variant.name})` : product.name,
+                image: variant ? (variant.image || product.image) : product.image,
+                variantName: variant ? variant.name : "Standard"
+            };
+
             if (targetSlot === 1) currentBundle.slot1 = selectedItem;
             else currentBundle.slot2 = selectedItem;
 
-            // Update Slot UI
+            // Update Slot UI - new compact header style
             const slotEl = document.getElementById(`slot-${targetSlot}`);
             slotEl.querySelector('.placeholder').classList.add('hidden');
             const imgEl = slotEl.querySelector('.slot-img');
@@ -925,13 +1320,35 @@ if (!file_exists($productsFile)) {
             imgEl.classList.remove('hidden');
             slotEl.querySelector('.clear-btn').classList.remove('hidden');
             slotEl.querySelector('.clear-btn').classList.add('flex');
+            
+            // Update slot label with variant name
+            const labelEl = slotEl.querySelector('.slot-label');
+            if (labelEl) {
+                labelEl.textContent = selectedItem.variantName;
+            }
 
-            // Auto-advance only if not forcing
-            if (!forceSlot && targetSlot === 1 && !currentBundle.slot2) {
+            // Auto-advance to next slot if not already filled
+            if (targetSlot === 1 && !currentBundle.slot2) {
                 setTimeout(() => activateSlot(2), 300);
             }
 
-            validateBundle();
+            updateBundleButton();
+        }
+        
+        function updateBundleButton() {
+            const btn = document.getElementById('add-bundle-btn');
+            if (currentBundle && currentBundle.slot1 && currentBundle.slot2) {
+                btn.disabled = false;
+                btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+                btn.classList.add('bg-brand-gold', 'hover:bg-brand-black');
+                btn.innerHTML = `<i class="fas fa-shopping-bag"></i><span>Ajouter au Panier - ${currentBundle.price} DH</span>`;
+            } else {
+                btn.disabled = true;
+                btn.classList.add('bg-gray-300', 'cursor-not-allowed');
+                btn.classList.remove('bg-brand-gold', 'hover:bg-brand-black');
+                const count = (currentBundle?.slot1 ? 1 : 0) + (currentBundle?.slot2 ? 1 : 0);
+                btn.innerHTML = `<i class="fas fa-shopping-bag"></i><span>Sélectionnez ${2 - count} montre${2 - count > 1 ? 's' : ''}</span>`;
+            }
         }
 
         function clearSlot(e, slotNum) {
@@ -940,7 +1357,7 @@ if (!file_exists($productsFile)) {
             else currentBundle.slot2 = null;
             
             resetSlotUI(slotNum);
-            validateBundle();
+            updateBundleButton();
             activateSlot(slotNum);
         }
 
@@ -950,19 +1367,10 @@ if (!file_exists($productsFile)) {
             slotEl.querySelector('.slot-img').classList.add('hidden');
             slotEl.querySelector('.clear-btn').classList.add('hidden');
             slotEl.querySelector('.clear-btn').classList.remove('flex');
-        }
-
-        function validateBundle() {
-            const btn = document.getElementById('add-bundle-btn');
-            if (currentBundle.slot1 && currentBundle.slot2) {
-                btn.disabled = false;
-                btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
-                btn.classList.add('bg-brand-black', 'hover:bg-brand-gold');
-            } else {
-                btn.disabled = true;
-                btn.classList.add('bg-gray-300', 'cursor-not-allowed');
-                btn.classList.remove('bg-brand-black', 'hover:bg-brand-gold');
-            }
+            
+            // Clear slot label
+            const labelEl = slotEl.querySelector('.slot-label');
+            if (labelEl) labelEl.textContent = '';
         }
 
         function addBundleToCart() {
@@ -1151,10 +1559,19 @@ if (!file_exists($productsFile)) {
                 });
             }
             
+            // Store all product images for gallery toggle
+            allProductImages = [...modalImages];
+            variantImages = [...modalImages]; // Default to all
+            modalGalleryMode = 'all';
+            
             currentImageIndex = 0;
             
             // Always set main image first
             document.getElementById('modal-image').src = product.image;
+            
+            // Hide gallery toggle by default
+            document.getElementById('modal-gallery-toggle').classList.add('hidden');
+            
             updateImageNavigation();
 
             if (hasVariants) {
@@ -1168,10 +1585,10 @@ if (!file_exists($productsFile)) {
                 // Build variant thumbnails (color swatches)
                 let thumbnailsHtml = product.variants.map((v, index) => `
                     <div onclick="selectVariant(${id}, ${index}, '${type}')" 
-                         class="variant-option cursor-pointer rounded-lg overflow-hidden w-16 h-16 relative shadow-sm hover:shadow-md ${index === 0 ? 'selected' : ''}"
+                         class="variant-option cursor-pointer rounded-lg overflow-hidden w-14 h-14 md:w-16 md:h-16 relative shadow-sm hover:shadow-md border-2 ${index === 0 ? 'selected border-brand-gold' : 'border-transparent'}"
                          title="${escapeHtml(v.name)}">
                         <img src="${escapeHtml(v.image || product.image)}" class="w-full h-full object-cover pointer-events-none">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] py-0.5 text-center truncate px-0.5">${escapeHtml(v.name)}</div>
                     </div>
                 `).join('');
                 
@@ -1204,6 +1621,11 @@ if (!file_exists($productsFile)) {
             setTimeout(() => { modal.classList.add('active'); }, 10);
         }
 
+        // Track gallery mode: 'all' = all product images, 'variant' = variant-specific
+        let modalGalleryMode = 'all';
+        let allProductImages = []; // Store all product images for toggle
+        let variantImages = []; // Store current variant images
+
         function selectVariant(productId, variantIndex, type) {
             // Use stored product reference for reliability
             const product = currentModalProduct;
@@ -1215,22 +1637,76 @@ if (!file_exists($productsFile)) {
             const variant = product.variants[variantIndex];
             currentSelectedVariant = variant;
             
-            // Show variant image - use variant's own image directly
-            if (variant.image && variant.image.length > 0) {
-                document.getElementById('modal-image').src = variant.image;
-            } else {
-                document.getElementById('modal-image').src = product.image;
-            }
-            document.getElementById('selected-variant-name').textContent = variant.name;
+            // Build variant-specific gallery
+            variantImages = [];
             
-            // Reset gallery navigation to start when variant changes
+            // Add variant's main image first
+            if (variant.image) {
+                variantImages.push(variant.image);
+            }
+            
+            // Add variant's gallery if exists
+            if (variant.gallery && variant.gallery.length > 0) {
+                variant.gallery.forEach(img => {
+                    if (!variantImages.includes(img)) {
+                        variantImages.push(img);
+                    }
+                });
+            }
+            
+            // If variant has no images, use product image
+            if (variantImages.length === 0) {
+                variantImages.push(product.image);
+            }
+            
+            // Switch to variant gallery mode
+            modalGalleryMode = 'variant';
+            modalImages = [...variantImages];
             currentImageIndex = 0;
             
-            const options = document.querySelectorAll('.variant-option');
-            options.forEach(opt => opt.classList.remove('selected'));
-            if (options[variantIndex]) {
-                options[variantIndex].classList.add('selected');
+            // Update display
+            document.getElementById('modal-image').src = modalImages[0];
+            document.getElementById('selected-variant-name').textContent = variant.name;
+            
+            // Show/update gallery toggle button
+            const toggleBtn = document.getElementById('modal-gallery-toggle');
+            if (allProductImages.length > variantImages.length) {
+                toggleBtn.classList.remove('hidden');
+                document.getElementById('gallery-toggle-text').textContent = 'Toutes';
+            } else {
+                toggleBtn.classList.add('hidden');
             }
+            
+            updateImageNavigation();
+            
+            // Update variant selection styling
+            const options = document.querySelectorAll('.variant-option');
+            options.forEach((opt, idx) => {
+                opt.classList.remove('selected', 'border-brand-gold');
+                opt.classList.add('border-transparent');
+            });
+            if (options[variantIndex]) {
+                options[variantIndex].classList.add('selected', 'border-brand-gold');
+                options[variantIndex].classList.remove('border-transparent');
+            }
+        }
+        
+        function toggleModalGalleryMode() {
+            if (modalGalleryMode === 'variant') {
+                // Switch to all images
+                modalGalleryMode = 'all';
+                modalImages = [...allProductImages];
+                document.getElementById('gallery-toggle-text').textContent = currentSelectedVariant ? currentSelectedVariant.name : 'Variante';
+            } else {
+                // Switch back to variant images
+                modalGalleryMode = 'variant';
+                modalImages = [...variantImages];
+                document.getElementById('gallery-toggle-text').textContent = 'Toutes';
+            }
+            
+            currentImageIndex = 0;
+            document.getElementById('modal-image').src = modalImages[0];
+            updateImageNavigation();
         }
 
         function selectGalleryImage(element, imageSrc) {

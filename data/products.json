@@ -238,8 +238,8 @@
             "newPrice": 120,
             "oldPrice": 200,
             "description": "2 Montres au choix (Groupe A)",
-            "type": "pack1",
-            "defaultSlot1": 201,
+            "type": "custom",
+            "defaultSlot1": 6,
             "defaultSlot2": 3,
             "slot1Group": "A",
             "slot2Group": "A"

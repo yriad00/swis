@@ -130,6 +130,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $vColor = $_POST['variant_color'][$index] ?? '#000000';
                 $vImage = $_POST['variant_current_image'][$index] ?? '';
+                
+                // Get existing variant gallery
+                $vGallery = [];
+                if (isset($_POST['variant_current_gallery'][$index])) {
+                    $vGallery = $_POST['variant_current_gallery'][$index];
+                    if (!is_array($vGallery)) $vGallery = [];
+                }
 
                 // Handle Variant Image Upload
                 if (isset($_FILES['variant_image']['name'][$index]) && $_FILES['variant_image']['error'][$index] === 0) {
@@ -144,12 +151,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
+                
+                // Handle Variant Gallery Upload
+                if (isset($_FILES['variant_gallery']['name'][$index])) {
+                    $uploadDir = __DIR__ . '/../uploads/';
+                    if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
+                    
+                    foreach ($_FILES['variant_gallery']['name'][$index] as $gKey => $gName) {
+                        if ($_FILES['variant_gallery']['error'][$index][$gKey] === 0) {
+                            $gExt = strtolower(pathinfo($gName, PATHINFO_EXTENSION));
+                            if (in_array($gExt, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                                $gFileName = time() . '_vg' . $index . '_' . $gKey . '_' . uniqid() . '.' . $gExt;
+                                if (move_uploaded_file($_FILES['variant_gallery']['tmp_name'][$index][$gKey], $uploadDir . $gFileName)) {
+                                    $vGallery[] = '/uploads/' . $gFileName;
+                                }
+                            }
+                        }
+                    }
+                }
 
-                $variants[] = [
+                $variant = [
                     'name' => $vName,
                     'color' => $vColor,
                     'image' => $vImage
                 ];
+                
+                // Only add gallery if it has images
+                if (!empty($vGallery)) {
+                    $variant['gallery'] = $vGallery;
+                }
+                
+                $variants[] = $variant;
             }
         }
 
@@ -416,30 +448,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $variants = $product['variants'] ?? [];
                         foreach($variants as $index => $variant): 
                         ?>
-                        <div class="variant-row flex gap-4 items-start bg-gray-50 p-4 rounded border relative">
+                        <div class="variant-row bg-gray-50 p-4 rounded border relative">
                             <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600">
                                 <i class="fas fa-times"></i>
                             </button>
                             
-                            <div class="flex-1">
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Nom (ex: Gold)</label>
-                                <input type="text" name="variant_name[]" value="<?php echo htmlspecialchars($variant['name']); ?>" class="w-full rounded border-gray-300 text-sm p-2 border">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Nom (ex: Gold)</label>
+                                    <input type="text" name="variant_name[]" value="<?php echo htmlspecialchars($variant['name']); ?>" class="w-full rounded border-gray-300 text-sm p-2 border">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Couleur</label>
+                                    <input type="color" name="variant_color[]" value="<?php echo htmlspecialchars($variant['color'] ?? '#000000'); ?>" class="h-9 w-full rounded border border-gray-300 p-1">
+                                </div>
+                            
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Image Principale</label>
+                                    <input type="hidden" name="variant_current_image[]" value="<?php echo htmlspecialchars($variant['image'] ?? ''); ?>">
+                                    <div class="flex items-center gap-2">
+                                        <?php if(!empty($variant['image'])): ?>
+                                            <img src="<?php echo htmlspecialchars($variant['image']); ?>" class="h-10 w-10 object-cover rounded border">
+                                        <?php endif; ?>
+                                        <input type="file" name="variant_image[]" accept="image/*" class="block w-full text-xs text-gray-500">
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Couleur</label>
-                                <input type="color" name="variant_color[]" value="<?php echo htmlspecialchars($variant['color'] ?? '#000000'); ?>" class="h-9 w-16 rounded border border-gray-300 p-1">
-                            </div>
-
-                            <!-- Removed Variant Group Selector as requested -->
-                            
-                            <div class="flex-1">
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Image Spécifique</label>
-                                <input type="hidden" name="variant_current_image[]" value="<?php echo htmlspecialchars($variant['image'] ?? ''); ?>">
-                                <?php if(!empty($variant['image'])): ?>
-                                    <img src="<?php echo htmlspecialchars($variant['image']); ?>" class="h-8 w-8 object-cover mb-1 rounded border inline-block">
-                                <?php endif; ?>
-                                <input type="file" name="variant_image[]" accept="image/*" class="block w-full text-xs text-gray-500">
+                            <!-- Variant Gallery -->
+                            <div class="border-t pt-3 mt-3">
+                                <label class="block text-xs font-bold text-gray-500 mb-2">Galerie de cette variante (optionnel)</label>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <?php 
+                                    $variantGallery = $variant['gallery'] ?? [];
+                                    foreach($variantGallery as $gImg): 
+                                    ?>
+                                        <div class="relative">
+                                            <img src="<?php echo htmlspecialchars($gImg); ?>" class="h-12 w-12 object-cover rounded border">
+                                            <input type="hidden" name="variant_current_gallery[<?php echo $index; ?>][]" value="<?php echo htmlspecialchars($gImg); ?>">
+                                            <button type="button" onclick="this.parentElement.remove()" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">×</button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <input type="file" name="variant_gallery[<?php echo $index; ?>][]" multiple accept="image/*" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-100 file:text-gray-600">
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -456,31 +508,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
+        let variantCounter = <?php echo count($product['variants'] ?? []); ?>;
+        
         function addVariant() {
             const container = document.getElementById('variants-container');
+            const index = variantCounter++;
             const div = document.createElement('div');
-            div.className = 'variant-row flex gap-4 items-start bg-gray-50 p-4 rounded border relative';
+            div.className = 'variant-row bg-gray-50 p-4 rounded border relative';
             div.innerHTML = `
                 <button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600">
                     <i class="fas fa-times"></i>
                 </button>
                 
-                <div class="flex-1">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">Nom (ex: Gold)</label>
-                    <input type="text" name="variant_name[]" class="w-full rounded border-gray-300 text-sm p-2 border" placeholder="Nom de la couleur">
+                <div class="flex gap-4 items-start mb-3">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Nom (ex: Gold)</label>
+                        <input type="text" name="variant_name[]" class="w-full rounded border-gray-300 text-sm p-2 border" placeholder="Nom de la couleur">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Couleur</label>
+                        <input type="color" name="variant_color[]" value="#000000" class="h-9 w-16 rounded border border-gray-300 p-1">
+                    </div>
+                    
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Image Principale</label>
+                        <input type="hidden" name="variant_current_image[]" value="">
+                        <input type="file" name="variant_image[]" accept="image/*" class="block w-full text-xs text-gray-500">
+                    </div>
                 </div>
                 
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">Couleur</label>
-                    <input type="color" name="variant_color[]" value="#000000" class="h-9 w-16 rounded border border-gray-300 p-1">
-                </div>
-
-                <!-- Removed Variant Group Selector -->
-                
-                <div class="flex-1">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">Image Spécifique</label>
-                    <input type="hidden" name="variant_current_image[]" value="">
-                    <input type="file" name="variant_image[]" accept="image/*" class="block w-full text-xs text-gray-500">
+                <!-- Variant Gallery -->
+                <div class="border-t pt-3 mt-2">
+                    <label class="block text-xs font-bold text-gray-500 mb-2">
+                        <i class="fas fa-images mr-1"></i>Galerie de cette variante (optionnel)
+                    </label>
+                    <input type="hidden" name="variant_current_gallery[${index}]" value="">
+                    <input type="file" name="variant_gallery[${index}][]" accept="image/*" multiple class="block w-full text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700">
+                    <p class="text-xs text-gray-400 mt-1">Vous pouvez sélectionner plusieurs images</p>
                 </div>
             `;
             container.appendChild(div);
