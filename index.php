@@ -305,45 +305,85 @@ if (!file_exists($productsFile)) {
         <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold opacity-10 rounded-full transform translate-x-1/2 -translate-y-1/2"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-gold opacity-5 rounded-full transform -translate-x-1/2 translate-y-1/2"></div>
         
+        <!-- Floating confetti/stars decoration -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-10 left-10 text-brand-gold text-2xl animate-pulse">✦</div>
+            <div class="absolute top-20 right-20 text-brand-gold text-xl animate-bounce" style="animation-delay: 0.5s">★</div>
+            <div class="absolute bottom-32 left-1/4 text-brand-gold text-lg animate-pulse" style="animation-delay: 1s">✧</div>
+            <div class="absolute top-1/3 right-10 text-brand-gold text-2xl animate-bounce" style="animation-delay: 0.3s">✦</div>
+        </div>
+        
         <div class="max-w-7xl mx-auto px-4 relative z-10">
-            <div class="flex flex-col md:flex-row items-center gap-12">
+            <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
                 <div class="md:w-1/2 text-center md:text-left">
-                    <span class="inline-block py-1 px-3 border border-brand-gold text-brand-gold text-xs tracking-widest uppercase mb-4 rounded-full animate-pulse">Offre Limitée</span>
-                    <h2 class="text-4xl md:text-6xl font-serif font-bold mb-4 text-brand-goldLight"><?php echo htmlspecialchars($settings['hero_title']); ?></h2>
-                    <h3 class="text-3xl md:text-4xl font-arabic font-bold mb-6 text-white"><?php echo htmlspecialchars($settings['hero_subtitle']); ?></h3>
-                    <p class="text-gray-300 mb-8 leading-relaxed">
-                        Le compte à rebours a commencé ! Profitez de nos offres exceptionnelles sur les coffrets cadeaux avant la fin de l'année.
+                    <!-- New Year Badge -->
+                    <div class="inline-flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-brand-gold/20 to-brand-red/20 border border-brand-gold text-brand-gold text-sm tracking-widest uppercase mb-4 rounded-full">
+                        <span class="animate-pulse">🎆</span>
+                        <span>عروض رأس السنة 2026</span>
+                        <span class="animate-pulse">🎆</span>
+                    </div>
+                    
+                    <h2 class="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-3 text-brand-goldLight leading-tight">
+                        Nouvel An 2026
+                        <span class="block text-white text-2xl md:text-3xl mt-2">أناقة لا تُنسى</span>
+                    </h2>
+                    
+                    <p class="text-gray-300 mb-2 leading-relaxed text-sm md:text-base">
+                        Le compte à rebours a commencé ! Profitez de nos offres exceptionnelles avant la nouvelle année.
+                    </p>
+                    <p class="font-arabic text-brand-gold text-lg md:text-xl mb-6">
+                        🎁 هدايا حصرية و عروض ما كتتعاودش 🎁
                     </p>
                     
-                    <!-- FUNCTIONAL COUNTDOWN -->
-                    <div class="flex justify-center md:justify-start gap-4 mb-8 font-mono">
+                    <!-- FUNCTIONAL COUNTDOWN TO JAN 1, 2026 -->
+                    <div class="flex justify-center md:justify-start gap-2 md:gap-4 mb-6">
                         <div class="text-center">
-                            <div id="days" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
-                            <span class="text-xs text-gray-400 mt-1">Jours</span>
+                            <div id="days" class="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-b from-white/20 to-white/5 backdrop-blur border border-brand-gold/30 flex items-center justify-center text-xl md:text-2xl font-bold text-brand-gold shadow-lg">00</div>
+                            <span class="text-[10px] md:text-xs text-gray-400 mt-1 block">Jours</span>
                         </div>
+                        <div class="text-brand-gold text-2xl font-bold self-center mb-4">:</div>
                         <div class="text-center">
-                            <div id="hours" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
-                            <span class="text-xs text-gray-400 mt-1">Heures</span>
+                            <div id="hours" class="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-b from-white/20 to-white/5 backdrop-blur border border-brand-gold/30 flex items-center justify-center text-xl md:text-2xl font-bold text-brand-gold shadow-lg">00</div>
+                            <span class="text-[10px] md:text-xs text-gray-400 mt-1 block">Heures</span>
                         </div>
+                        <div class="text-brand-gold text-2xl font-bold self-center mb-4">:</div>
                         <div class="text-center">
-                            <div id="minutes" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
-                            <span class="text-xs text-gray-400 mt-1">Min</span>
+                            <div id="minutes" class="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-b from-white/20 to-white/5 backdrop-blur border border-brand-gold/30 flex items-center justify-center text-xl md:text-2xl font-bold text-brand-gold shadow-lg">00</div>
+                            <span class="text-[10px] md:text-xs text-gray-400 mt-1 block">Min</span>
                         </div>
+                        <div class="text-brand-gold text-2xl font-bold self-center mb-4">:</div>
                         <div class="text-center">
-                            <div id="seconds" class="w-16 h-16 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-2xl font-bold text-brand-gold">00</div>
-                            <span class="text-xs text-gray-400 mt-1">Sec</span>
+                            <div id="seconds" class="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-b from-white/20 to-white/5 backdrop-blur border border-brand-gold/30 flex items-center justify-center text-xl md:text-2xl font-bold text-white shadow-lg animate-pulse">00</div>
+                            <span class="text-[10px] md:text-xs text-gray-400 mt-1 block">Sec</span>
                         </div>
                     </div>
 
-                    <!-- Button linked to Promo Packs -->
-                    <a href="#promo-packs" class="inline-block bg-brand-gold text-brand-black px-10 py-4 uppercase tracking-widest font-bold hover:bg-white transition duration-300 rounded shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-                        Voir les Promos <span class="font-arabic ml-2">شوفي الهوتة</span>
-                    </a>
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                        <a href="#promo-packs" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-brand-gold to-yellow-500 text-brand-black px-8 py-4 uppercase tracking-widest font-bold hover:from-white hover:to-white transition duration-300 rounded-lg shadow-[0_0_30px_rgba(212,175,55,0.5)]">
+                            <span>🎁</span>
+                            <span>Voir les Promos</span>
+                        </a>
+                        <a href="#collection" class="inline-flex items-center justify-center gap-2 border-2 border-brand-gold text-brand-gold px-8 py-4 uppercase tracking-widest font-bold hover:bg-brand-gold hover:text-black transition duration-300 rounded-lg">
+                            <span class="font-arabic">شوفي التشكيلة ✨</span>
+                        </a>
+                    </div>
                 </div>
                 
+                <!-- New Year Image -->
                 <div class="md:w-1/2 relative">
-                    <div class="absolute inset-0 border-2 border-brand-gold transform translate-x-4 translate-y-4 rounded-lg"></div>
-                    <img src="https://images.unsplash.com/photo-1594539655823-74d32646c243?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="New Year Watch" class="relative rounded-lg shadow-2xl w-full object-cover h-[500px]">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-brand-gold/20 to-brand-red/20 rounded-2xl blur-xl"></div>
+                    <div class="absolute inset-0 border-2 border-brand-gold/50 transform translate-x-3 translate-y-3 rounded-2xl"></div>
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-gold/20">
+                        <img src="/images/IMG-20251111-WA0005.jpg" alt="Swis Brands New Year 2026" class="w-full object-cover h-[350px] md:h-[500px]">
+                        <!-- Overlay badge -->
+                        <div class="absolute top-4 right-4 bg-brand-red text-white px-4 py-2 rounded-full text-sm font-bold animate-bounce">
+                            🔥 -50%
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
+                            <p class="font-arabic text-brand-gold text-lg">✨ استعدي لسنة جديدة بإطلالة راقية ✨</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -860,18 +900,30 @@ if (!file_exists($productsFile)) {
             document.getElementById('modal-qty').textContent = currentModalQty;
         }
 
-        // --- COUNTDOWN ---
+        // --- COUNTDOWN TO NEW YEAR 2026 ---
         function startCountdown() {
-            const endDate = new Date();
-            endDate.setDate(endDate.getDate() + 3); 
+            // Set target to January 1, 2026 at midnight (Morocco time)
+            const endDate = new Date('2026-01-01T00:00:00+01:00');
+            
             const timer = setInterval(function() {
                 const now = new Date().getTime();
                 const distance = endDate - now;
-                if (distance < 0) { clearInterval(timer); return; }
+                
+                if (distance < 0) { 
+                    // New Year has arrived!
+                    clearInterval(timer);
+                    document.getElementById("days").innerHTML = "🎉";
+                    document.getElementById("hours").innerHTML = "🎊";
+                    document.getElementById("minutes").innerHTML = "🎆";
+                    document.getElementById("seconds").innerHTML = "✨";
+                    return; 
+                }
+                
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
                 document.getElementById("days").innerHTML = days < 10 ? "0" + days : days;
                 document.getElementById("hours").innerHTML = hours < 10 ? "0" + hours : hours;
                 document.getElementById("minutes").innerHTML = minutes < 10 ? "0" + minutes : minutes;
