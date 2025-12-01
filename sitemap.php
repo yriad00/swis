@@ -1,4 +1,6 @@
 <?php
+// Security Headers
+header('X-Content-Type-Options: nosniff');
 header("Content-Type: application/xml; charset=utf-8");
 
 $jsonData = file_get_contents('data/products.json');

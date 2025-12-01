@@ -1,4 +1,10 @@
 <?php
+// Security Headers - prevent MIME sniffing, clickjacking, XSS
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
 // Load settings with error handling
 $settingsFile = 'data/settings.json';
 if (!file_exists($settingsFile)) {
@@ -1630,8 +1636,6 @@ if (!file_exists($productsFile)) {
                 // Product has variants - show variants
                 variantSection.classList.remove('hidden');
                 currentSelectedVariant = product.variants[0];
-                // Don't change the main image here - keep product.image as default
-                // Variant image will be shown when user clicks a variant
                 document.getElementById('selected-variant-name').textContent = currentSelectedVariant.name;
 
                 // Build variant thumbnails (color swatches)
@@ -1645,6 +1649,39 @@ if (!file_exists($productsFile)) {
                 `).join('');
                 
                 variantOptionsDiv.innerHTML = thumbnailsHtml;
+                
+                // Show first variant's image by default
+                const firstVariant = product.variants[0];
+                const firstVariantImage = firstVariant.image || product.image;
+                document.getElementById('modal-image').src = firstVariantImage;
+                
+                // Build variant-specific gallery for first variant
+                variantImages = [];
+                if (firstVariant.image) {
+                    variantImages.push(firstVariant.image);
+                }
+                if (firstVariant.gallery && firstVariant.gallery.length > 0) {
+                    firstVariant.gallery.forEach(img => {
+                        if (!variantImages.includes(img)) {
+                            variantImages.push(img);
+                        }
+                    });
+                }
+                if (variantImages.length === 0) {
+                    variantImages.push(product.image);
+                }
+                
+                // Start with variant images
+                modalGalleryMode = 'variant';
+                modalImages = [...variantImages];
+                currentImageIndex = 0;
+                
+                // Always show gallery toggle for products with variants so user can see "Image Principale"
+                const toggleBtn = document.getElementById('modal-gallery-toggle');
+                toggleBtn.classList.remove('hidden');
+                document.getElementById('gallery-toggle-text').textContent = 'Toutes';
+                
+                updateImageNavigation();
                 
             } else if (hasGallery) {
                 // No variants but has gallery - hide variant section, arrows will handle gallery
@@ -1671,6 +1708,9 @@ if (!file_exists($productsFile)) {
             const modal = document.getElementById('product-modal');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('active'); }, 10);
+            
+            // Update URL for sharing
+            updateUrlForProduct(id, type);
         }
 
         // Track gallery mode: 'all' = all product images, 'variant' = variant-specific
@@ -1720,14 +1760,10 @@ if (!file_exists($productsFile)) {
             document.getElementById('modal-image').src = modalImages[0];
             document.getElementById('selected-variant-name').textContent = variant.name;
             
-            // Show/update gallery toggle button
+            // Always show gallery toggle for products with variants so user can see "Image Principale"
             const toggleBtn = document.getElementById('modal-gallery-toggle');
-            if (allProductImages.length > variantImages.length) {
-                toggleBtn.classList.remove('hidden');
-                document.getElementById('gallery-toggle-text').textContent = 'Toutes';
-            } else {
-                toggleBtn.classList.add('hidden');
-            }
+            toggleBtn.classList.remove('hidden');
+            document.getElementById('gallery-toggle-text').textContent = 'Toutes';
             
             updateImageNavigation();
             
@@ -1813,6 +1849,9 @@ if (!file_exists($productsFile)) {
             const modal = document.getElementById('product-modal');
             modal.classList.remove('active');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            
+            // Clear product from URL
+            clearProductUrl();
         }
 
         // Add to Cart Logic
@@ -2021,12 +2060,84 @@ if (!file_exists($productsFile)) {
             window.scrollY > 50 ? nav.classList.add('shadow-md') : nav.classList.remove('shadow-md');
         });
 
+        // Deep Linking - Open product from URL parameter
+        function checkDeepLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product');
+            const productType = urlParams.get('type') || 'collection'; // collection, new, pack
+            
+            if (productId) {
+                const id = parseInt(productId);
+                // Find the product to determine its type if not specified
+                let foundType = productType;
+                let product = null;
+                
+                if (productType === 'collection' || productType === 'all') {
+                    product = allProducts.find(p => p.id === id);
+                    if (product) foundType = 'collection';
+                }
+                if (!product && (productType === 'new' || productType === 'collection')) {
+                    product = newArrivals.find(p => p.id === id);
+                    if (product) foundType = 'new';
+                }
+                if (!product && (productType === 'pack' || productType === 'collection')) {
+                    product = promoPacks.find(p => p.id === id);
+                    if (product) foundType = 'pack';
+                }
+                
+                // Auto-search in all collections if not found
+                if (!product) {
+                    product = allProducts.find(p => p.id === id);
+                    if (product) foundType = 'collection';
+                }
+                if (!product) {
+                    product = newArrivals.find(p => p.id === id);
+                    if (product) foundType = 'new';
+                }
+                if (!product) {
+                    product = promoPacks.find(p => p.id === id);
+                    if (product) foundType = 'pack';
+                }
+                
+                if (product) {
+                    // Small delay to ensure page is fully loaded
+                    setTimeout(() => {
+                        if (product.type && foundType === 'pack') {
+                            // Composable pack
+                            openBundleModal(id);
+                        } else {
+                            openModal(id, foundType);
+                        }
+                    }, 300);
+                }
+            }
+        }
+        
+        // Update URL when opening a product (for sharing)
+        function updateUrlForProduct(id, type) {
+            const url = new URL(window.location);
+            url.searchParams.set('product', id);
+            url.searchParams.set('type', type);
+            window.history.replaceState({}, '', url);
+        }
+        
+        // Clear URL when closing modal
+        function clearProductUrl() {
+            const url = new URL(window.location);
+            url.searchParams.delete('product');
+            url.searchParams.delete('type');
+            window.history.replaceState({}, '', url);
+        }
+
         // Run
         startCountdown();
         renderProducts();
         renderNewArrivals(); 
         renderPacks();
         updateCartUI();
+        
+        // Check for deep link after content is loaded
+        checkDeepLink();
     </script>
 </body>
 </html>

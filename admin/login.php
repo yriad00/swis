@@ -1,4 +1,18 @@
 <?php
+// Security Headers - prevent MIME sniffing, clickjacking, XSS
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
+// Secure session configuration
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Strict');
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    ini_set('session.cookie_secure', 1);
+}
+ini_set('session.use_strict_mode', 1);
+
 session_start();
 
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
