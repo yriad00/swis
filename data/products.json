@@ -1,66 +1,33 @@
 {
-    "newArrivals": [
-        {
-            "id": 201,
-            "name": "Eclat Lunaire",
-            "arabicName": "إكلا لونير",
-            "image": "\/images\/image_1.jpg",
-            "category": "Nouveau",
-            "group": "A",
-            "variants": [
-                {
-                    "name": "gold",
-                    "color": "#000000",
-                    "image": "\/uploads\/1764379939_v0_692a4d230a2fd.jpg"
-                }
-            ],
-            "price": 149,
-            "oldPrice": 399
-        },
-        {
-            "id": 202,
-            "name": "Soleil Royal",
-            "arabicName": "سولاي رويال",
-            "price": 149,
-            "oldPrice": 399,
-            "image": "\/images\/iamge_2.jpg",
-            "category": "Nouveau",
-            "group": "A",
-            "variants": []
-        },
-        {
-            "id": 203,
-            "name": "Diamant Noir",
-            "arabicName": "ديامون نوار",
-            "price": 149,
-            "oldPrice": 399,
-            "image": "\/images\/image_3.jpg",
-            "category": "Nouveau",
-            "group": "A",
-            "variants": []
-        }
-    ],
+    "newArrivals": [],
     "allProducts": [
         {
             "id": 1,
-            "name": "Royal Rose Gold",
-            "arabicName": "رويال روز جولد",
+            "name": "L'Éclat Doré par Swis",
+            "arabicName": "لمسة ذهبية ساحرة",
             "image": "\/images\/IMG-20251118-WA0071.jpg",
-            "gallery": [
-                "\/uploads\/1764380787_g0_692a507372f21.jpg",
-                "\/uploads\/1764382088_g0_692a55887f3e7.jpg"
-            ],
+            "gallery": [],
             "category": "Classique",
             "variants": [
                 {
-                    "name": "Silver",
+                    "name": "Gold",
                     "color": "#e0e0e0",
-                    "image": "\/uploads\/1764348762_v0_6929d35aac2f1.jpg"
+                    "image": "\/uploads\/1764628452_v0_692e17e4778c2.jpg"
                 },
                 {
-                    "name": "Gold",
+                    "name": "Rose",
                     "color": "#d4af37",
-                    "image": "\/uploads\/1764445739_v1_692b4e2baa9fa.jpg"
+                    "image": "\/uploads\/1764628411_v1_692e17bbc7951.jpg"
+                },
+                {
+                    "name": "Rose\/black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764628411_v2_692e17bbc7ae7.jpg"
+                },
+                {
+                    "name": "Gold\/black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764628411_v3_692e17bbc7c61.jpg"
                 }
             ],
             "price": 249,
@@ -69,33 +36,64 @@
         },
         {
             "id": 2,
-            "name": "Midnight Elegance",
-            "arabicName": "ميدنايت إليجانس",
-            "price": 249,
-            "oldPrice": 499,
+            "name": "Carré d'Or : Le bijou de votre temps",
+            "arabicName": "مربع الذهب: جوهرة فكل وقت",
             "image": "\/images\/IMG-20251118-WA0074.jpg",
+            "gallery": [],
             "category": "Moderne",
-            "group": "B",
             "variants": [
                 {
-                    "name": "Blue Navy",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#000080"
+                    "name": "Rose",
+                    "color": "#fafafa",
+                    "image": "\/uploads\/1764628824_v0_692e1958c2b10.jpg"
+                },
+                {
+                    "name": "Gold\/Green",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764628824_v1_692e1958c2caf.jpg"
+                },
+                {
+                    "name": "Rose\/Black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764628860_v2_692e197c8e0a9.jpg"
+                },
+                {
+                    "name": "Gold",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764633102_v3_692e2a0e09001.jpg"
                 }
-            ]
+            ],
+            "price": 249,
+            "oldPrice": 499,
+            "group": "B"
         },
         {
             "id": 3,
-            "name": "Silver Minimalist",
-            "arabicName": "سيلفر مينيماليست",
-            "image": "\/uploads\/1764547533_692cdbcd269f9.jpg",
+            "name": "Swis Royal Gold : L'éclat du prestige",
+            "arabicName": "الذهب اللامع",
+            "image": "\/uploads\/1764629576_692e1c48b3801.jpg",
             "gallery": [],
             "category": "Bureau",
             "variants": [
                 {
-                    "name": "White\/Silver",
+                    "name": "Gold",
                     "color": "#ffffff",
-                    "image": "https:\/\/images.unsplash.com\/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    "image": "\/uploads\/1764629758_v0_692e1cfef0c5d.jpg"
+                },
+                {
+                    "name": "Gold\/Black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764629758_v1_692e1cfef0e34.jpg"
+                },
+                {
+                    "name": "Rose",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764629970_v2_692e1dd2680e1.jpg"
+                },
+                {
+                    "name": "Rose\/black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764629970_v3_692e1dd26829f.jpg"
                 }
             ],
             "price": 249,
@@ -104,16 +102,36 @@
         },
         {
             "id": 4,
-            "name": "Golden Hour",
-            "arabicName": "جولدن آور",
+            "name": "L'élégance en toute simplicité",
+            "arabicName": "الأناقة فالبساطة",
             "image": "\/images\/IMG-20251118-WA0070.jpg",
             "gallery": [],
             "category": "Luxe",
             "variants": [
                 {
+                    "name": "Rose",
+                    "color": "#ffffff",
+                    "image": "\/uploads\/1764630338_v0_692e1f4290cad.jpg"
+                },
+                {
+                    "name": "Rose\/Black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764630399_v1_692e1f7fe656b.jpg"
+                },
+                {
+                    "name": "Gold\/Black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764630399_v2_692e1f7fe67ca.jpg"
+                },
+                {
+                    "name": "Rose\/Green",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764630399_v3_692e1f7fe6965.jpg"
+                },
+                {
                     "name": "Gold",
-                    "color": "#d4af37",
-                    "image": "\/uploads\/1764547501_v0_692cdbad98c95.jpg"
+                    "color": "#000000",
+                    "image": "\/uploads\/1764633538_v4_692e2bc296c21.jpg"
                 }
             ],
             "price": 249,
@@ -122,110 +140,59 @@
         },
         {
             "id": 5,
-            "name": "Pearl White",
-            "arabicName": "بيرل وايت",
-            "price": 249,
-            "oldPrice": 499,
+            "name": "Le Vintage Réinventé par Swis",
+            "arabicName": "لمسة من الزمن الجميل",
             "image": "\/images\/IMG-20251118-WA0065.jpg",
+            "gallery": [],
             "category": "Chic",
-            "group": "B",
             "variants": [
                 {
-                    "name": "White",
-                    "image": "https:\/\/images.unsplash.com\/photo-1619134778706-7015533a6150?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#ffffff"
+                    "name": "Gold",
+                    "color": "#ffffff",
+                    "image": "\/uploads\/1764630483_v0_692e1fd37275c.jpg"
                 },
                 {
-                    "name": "Pink",
-                    "image": "https:\/\/images.unsplash.com\/photo-1517502474097-f9b30659dadb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#ffc0cb"
-                }
-            ]
-        },
-        {
-            "id": 6,
-            "name": "Obsidian Black",
-            "arabicName": "أوبسيديان بلاك",
-            "image": "\/images\/IMG-20251118-WA0072.jpg",
-            "category": "Soirée",
-            "group": "B",
-            "variants": [
-                {
-                    "name": "Black",
-                    "color": "#1a1a1a",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    "name": "Rose",
+                    "color": "#ffffff",
+                    "image": "\/uploads\/1764630483_v1_692e1fd3728f7.jpg"
                 }
             ],
             "price": 249,
-            "oldPrice": 499
+            "oldPrice": 499,
+            "group": "B"
         },
         {
             "id": 7,
-            "name": "Obsidian Black",
-            "arabicName": "أوبسيديان بلاك",
+            "name": "L'Éclat Infini : Brillez de l'intérieur",
+            "arabicName": "اللمعان اللانهائي: تألقي من الداخل",
+            "image": "\/images\/IMG-20251118-WA0103.jpg",
+            "gallery": [],
+            "category": "Soirée",
+            "variants": [
+                {
+                    "name": "Rose",
+                    "color": "#1a1a1a",
+                    "image": "\/uploads\/1764630563_v0_692e2023595c5.jpg"
+                },
+                {
+                    "name": "Gold",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764630711_v1_692e20b712ac7.jpg"
+                },
+                {
+                    "name": "Gold\/Black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764630803_v2_692e21136447a.jpg"
+                },
+                {
+                    "name": "Rose\/Black",
+                    "color": "#000000",
+                    "image": "\/uploads\/1764630803_v3_692e21136461d.jpg"
+                }
+            ],
             "price": 249,
             "oldPrice": 499,
-            "image": "\/images\/IMG-20251118-WA0103.jpg",
-            "category": "Soirée",
-            "group": "C",
-            "variants": [
-                {
-                    "name": "Black",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#1a1a1a"
-                }
-            ]
-        },
-        {
-            "id": 8,
-            "name": "Obsidian Black",
-            "arabicName": "أوبسيديان بلاك",
-            "price": 199,
-            "oldPrice": 399,
-            "image": "\/images\/IMG-20251118-WA0067.jpg",
-            "category": "Soirée",
-            "group": "B",
-            "variants": [
-                {
-                    "name": "Black",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#1a1a1a"
-                }
-            ]
-        },
-        {
-            "id": 9,
-            "name": "Obsidian Black",
-            "arabicName": "أوبسيديان بلاك",
-            "price": 199,
-            "oldPrice": 399,
-            "image": "\/images\/IMG-20251118-WA0069.jpg",
-            "category": "Soirée",
-            "group": "A",
-            "variants": [
-                {
-                    "name": "Black",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#1a1a1a"
-                }
-            ]
-        },
-        {
-            "id": 10,
-            "name": "Obsidian Black",
-            "arabicName": "أوبسيديان بلاك",
-            "price": 199,
-            "oldPrice": 399,
-            "image": "\/images\/IMG-20251118-WA0066.jpg",
-            "category": "Soirée",
-            "group": "B",
-            "variants": [
-                {
-                    "name": "Black",
-                    "image": "https:\/\/images.unsplash.com\/photo-1614164185128-e4ec99c436d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                    "color": "#1a1a1a"
-                }
-            ]
+            "group": "C"
         }
     ],
     "promoPacks": [

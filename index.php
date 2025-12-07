@@ -293,12 +293,7 @@ if (!file_exists($productsFile)) {
     <!-- SECTION: NEW ARRIVALS (NOUVEAUTÉS) -->
     <section id="new-arrivals" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-12">
-                <span class="text-brand-gold font-bold tracking-widest uppercase text-sm">Sal3a Jdida</span>
-                <h2 class="text-4xl font-serif font-bold mb-2">Nouveautés</h2>
-                <p class="font-arabic text-xl text-gray-500">وصل حديثاً</p>
-                <div class="h-1 w-20 bg-brand-black mx-auto mt-4"></div>
-            </div>
+          
 
             <div id="new-arrivals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Rendered by JS -->
@@ -829,17 +824,18 @@ if (!file_exists($productsFile)) {
             <div>
                 <h4 class="font-serif text-lg mb-6 text-brand-gold uppercase tracking-widest">Contactez-nous</h4>
                 <ul class="space-y-4 text-gray-400 text-sm">
-                    <li class="flex items-center justify-center md:justify-start hover:text-brand-gold transition cursor-pointer">
-                        <i class="fab fa-whatsapp mr-3 text-brand-gold"></i> +212 644-824488
-                    </li>
+                      <a href="https://www.instagram.com/swis_maroc/" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-gold hover:text-white transition transform hover:-translate-y-1">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                    </a>
                 </ul>
             </div>
             <div>
                 <h4 class="font-serif text-lg mb-6 text-brand-gold uppercase tracking-widest">Suivez-nous</h4>
                 <div class="flex space-x-4 justify-center md:justify-start">
-                    <a href="#" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-gold hover:text-white transition transform hover:-translate-y-1">
+                    <a href="https://www.instagram.com/swis_maroc/" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-gold hover:text-white transition transform hover:-translate-y-1">
                         <i class="fab fa-instagram text-xl"></i>
                     </a>
+                  
                 </div>
             </div>
         </div>
