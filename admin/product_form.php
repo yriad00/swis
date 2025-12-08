@@ -52,13 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $group = null;
         }
         
-        // Force pack type to custom as requested
-        $packType = 'custom';
-        
-        // Pack Logic Fields
-        $slot1Group = $_POST['slot1_group'] ?? 'A';
-        $slot2Group = $_POST['slot2_group'] ?? 'A';
-        
         // Image Upload
         $imagePath = $_POST['current_image'] ?? '';
 
@@ -192,30 +185,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $imagePath,
             'gallery' => $gallery,
             'category' => $category,
-            'variants' => $variants
+            'variants' => $variants,
+            'price' => (int)$price,
+            'oldPrice' => $oldPrice ? (int)$oldPrice : null
         ];
 
-        if ($targetType === 'promoPacks') {
-            $newProduct['newPrice'] = (int)$price;
-            $newProduct['oldPrice'] = (int)$oldPrice;
-            $newProduct['description'] = $_POST['description'] ?? '';
-            if ($packType) $newProduct['type'] = $packType;
-            
-            // Default Slots & Logic - only save if not empty
-            if (!empty($_POST['default_slot1'])) {
-                $newProduct['defaultSlot1'] = (int)$_POST['default_slot1'];
-            }
-            if (!empty($_POST['default_slot2'])) {
-                $newProduct['defaultSlot2'] = (int)$_POST['default_slot2'];
-            }
-            
-            $newProduct['slot1Group'] = $slot1Group;
-            $newProduct['slot2Group'] = $slot2Group;
-
-        } else {
-            $newProduct['price'] = (int)$price;
-            $newProduct['oldPrice'] = $oldPrice ? (int)$oldPrice : null;
-            if ($group) $newProduct['group'] = $group;
+        // Add group only for non-pack products
+        if ($targetType !== 'promoPacks' && $group) {
+            $newProduct['group'] = $group;
         }
 
         // Update Data
@@ -306,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Prix (DH)</label>
-                        <input type="number" name="price" required value="<?php echo $type === 'promoPacks' ? ($product['newPrice'] ?? '') : ($product['price'] ?? ''); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                        <input type="number" name="price" required value="<?php echo $product['price'] ?? $product['newPrice'] ?? ''; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Ancien Prix (Optionnel)</label>
@@ -341,69 +318,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="B" <?php echo ($product['group'] ?? '') === 'B' ? 'selected' : ''; ?>>Groupe B (Premium)</option>
                         <option value="C" <?php echo ($product['group'] ?? '') === 'C' ? 'selected' : ''; ?>>Groupe C (Luxe)</option>
                     </select>
-                </div>
-                <?php endif; ?>
-
-                <?php if ($type === 'promoPacks'): ?>
-                <!-- Pack Type removed as requested, defaults to custom -->
-                
-                <div class="grid grid-cols-2 gap-4 bg-blue-50 p-4 rounded border border-blue-100">
-                    <div class="col-span-2">
-                        <h4 class="text-sm font-bold text-blue-800 mb-2">Configuration de la Composition</h4>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">Groupe Requis (Slot 1)</label>
-                        <select name="slot1_group" class="w-full rounded border-gray-300 text-sm p-2 border">
-                            <option value="A" <?php echo ($product['slot1Group'] ?? 'A') === 'A' ? 'selected' : ''; ?>>Groupe A (Basic)</option>
-                            <option value="B" <?php echo ($product['slot1Group'] ?? '') === 'B' ? 'selected' : ''; ?>>Groupe B (Premium)</option>
-                            <option value="C" <?php echo ($product['slot1Group'] ?? '') === 'C' ? 'selected' : ''; ?>>Groupe C (Luxe)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">Groupe Requis (Slot 2)</label>
-                        <select name="slot2_group" class="w-full rounded border-gray-300 text-sm p-2 border">
-                            <option value="A" <?php echo ($product['slot2Group'] ?? 'A') === 'A' ? 'selected' : ''; ?>>Groupe A (Basic)</option>
-                            <option value="B" <?php echo ($product['slot2Group'] ?? '') === 'B' ? 'selected' : ''; ?>>Groupe B (Premium)</option>
-                            <option value="C" <?php echo ($product['slot2Group'] ?? '') === 'C' ? 'selected' : ''; ?>>Groupe C (Luxe)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Description (Pour les packs)</label>
-                    <textarea name="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"><?php echo htmlspecialchars($product['description'] ?? ''); ?></textarea>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Produit par défaut (Slot 1)</label>
-                        <select name="default_slot1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
-                            <option value="">-- Aucun (client choisit) --</option>
-                            <?php 
-                            $allAvailableProducts = array_merge($data['newArrivals'] ?? [], $data['allProducts'] ?? []);
-                            foreach($allAvailableProducts as $ap): 
-                                $selected = (isset($product['defaultSlot1']) && $product['defaultSlot1'] == $ap['id']) ? 'selected' : '';
-                            ?>
-                                <option value="<?php echo $ap['id']; ?>" <?php echo $selected; ?>>
-                                    <?php echo htmlspecialchars($ap['name']); ?> (ID: <?php echo $ap['id']; ?>, Groupe: <?php echo $ap['group'] ?? 'N/A'; ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Produit par défaut (Slot 2)</label>
-                        <select name="default_slot2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
-                            <option value="">-- Aucun (client choisit) --</option>
-                            <?php 
-                            foreach($allAvailableProducts as $ap): 
-                                $selected = (isset($product['defaultSlot2']) && $product['defaultSlot2'] == $ap['id']) ? 'selected' : '';
-                            ?>
-                                <option value="<?php echo $ap['id']; ?>" <?php echo $selected; ?>>
-                                    <?php echo htmlspecialchars($ap['name']); ?> (ID: <?php echo $ap['id']; ?>, Groupe: <?php echo $ap['group'] ?? 'N/A'; ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
                 </div>
                 <?php endif; ?>
 
