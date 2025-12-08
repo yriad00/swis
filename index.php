@@ -1391,53 +1391,62 @@ if (!file_exists($productsFile)) {
         });
 
         // Deep Linking - Open product from URL parameter
+        // Usage: ?product=ID or ?product=ID&type=pack (for promo packs)
+        // Examples:
+        //   ?product=1 - Opens product ID 1 (auto-detects type)
+        //   ?product=101&type=pack - Opens promo pack ID 101
+        //   ?product=201&type=new - Opens from Nouveautés
         function checkDeepLink() {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('product');
-            const productType = urlParams.get('type') || 'collection'; // collection, new, pack
+            const productType = urlParams.get('type') || 'auto'; // auto, collection, new, pack
             
             if (productId) {
                 const id = parseInt(productId);
-                // Find the product to determine its type if not specified
-                let foundType = productType;
+                let foundType = null;
                 let product = null;
                 
-                if (productType === 'collection' || productType === 'all') {
+                // If type is specified, search in that collection first
+                if (productType === 'pack') {
+                    product = promoPacks.find(p => p.id === id);
+                    if (product) foundType = 'pack';
+                } else if (productType === 'new') {
+                    product = newArrivals.find(p => p.id === id);
+                    if (product) foundType = 'new';
+                } else if (productType === 'collection') {
                     product = allProducts.find(p => p.id === id);
                     if (product) foundType = 'collection';
                 }
-                if (!product && (productType === 'new' || productType === 'collection')) {
-                    product = newArrivals.find(p => p.id === id);
-                    if (product) foundType = 'new';
-                }
-                if (!product && (productType === 'pack' || productType === 'collection')) {
-                    product = promoPacks.find(p => p.id === id);
-                    if (product) foundType = 'pack';
+                
+                // Auto-search in all collections if not found or type is 'auto'
+                if (!product) {
+                    // Search by ID range convention: 1-99 = collection, 100-199 = packs, 200+ = new
+                    if (id >= 100 && id < 200) {
+                        product = promoPacks.find(p => p.id === id);
+                        if (product) foundType = 'pack';
+                    }
+                    if (!product && id >= 200) {
+                        product = newArrivals.find(p => p.id === id);
+                        if (product) foundType = 'new';
+                    }
+                    if (!product) {
+                        product = allProducts.find(p => p.id === id);
+                        if (product) foundType = 'collection';
+                    }
+                    if (!product) {
+                        product = newArrivals.find(p => p.id === id);
+                        if (product) foundType = 'new';
+                    }
+                    if (!product) {
+                        product = promoPacks.find(p => p.id === id);
+                        if (product) foundType = 'pack';
+                    }
                 }
                 
-                // Auto-search in all collections if not found
-                if (!product) {
-                    product = allProducts.find(p => p.id === id);
-                    if (product) foundType = 'collection';
-                }
-                if (!product) {
-                    product = newArrivals.find(p => p.id === id);
-                    if (product) foundType = 'new';
-                }
-                if (!product) {
-                    product = promoPacks.find(p => p.id === id);
-                    if (product) foundType = 'pack';
-                }
-                
-                if (product) {
+                if (product && foundType) {
                     // Small delay to ensure page is fully loaded
                     setTimeout(() => {
-                        if (product.type && foundType === 'pack') {
-                            // Composable pack
-                            openBundleModal(id);
-                        } else {
-                            openModal(id, foundType);
-                        }
+                        openModal(id, foundType);
                     }, 300);
                 }
             }
