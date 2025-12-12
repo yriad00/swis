@@ -198,54 +198,25 @@
     "promoPacks": [
         {
             "id": 101,
-            "name": "Pack Duo Copines",
-            "arabicName": "باك الصديقات",
-            "image": "https:\/\/images.unsplash.com\/photo-1611591437281-460bfbe1220a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            "name": "Pack Montre & Bracelet Royal",
+            "arabicName": "طقم ساعة وسوار فاخر",
+            "image": "\/uploads\/1765486448_693b2f7042619.png",
             "gallery": [],
             "category": "Pack Promo",
             "variants": [],
-            "newPrice": 120,
-            "oldPrice": 200,
-            "description": "2 Montres au choix (Groupe A)",
-            "type": "custom",
-            "defaultSlot1": 6,
-            "defaultSlot2": 3,
-            "slot1Group": "A",
-            "slot2Group": "A"
+            "price": 299,
+            "oldPrice": 499
         },
         {
             "id": 102,
-            "name": "Pack Buy 1 Get 1",
-            "arabicName": "شري وحدة و خود وحدة",
-            "image": "\/uploads\/1764202743_692798f707498.jpg",
+            "name": "Pack Montre Carrée Gold & Bracelet",
+            "arabicName": "طقم الساعة المربعة الأنيق",
+            "image": "\/uploads\/1765488883_693b38f3da6fe.png",
             "gallery": [],
             "category": "Pack Promo",
             "variants": [],
-            "newPrice": 130,
-            "oldPrice": 230,
-            "description": "1 Montre Luxe (C) + 1 Montre Basic (A)",
-            "type": "pack2",
-            "defaultSlot1": 1,
-            "defaultSlot2": 201,
-            "slot1Group": "C",
-            "slot2Group": "A"
-        },
-        {
-            "id": 103,
-            "name": "Pack Collection",
-            "arabicName": "باك التشكيلة",
-            "image": "\/uploads\/1764378530_692a47a2e9b00.jpg",
-            "gallery": [],
-            "category": "Pack Promo",
-            "variants": [],
-            "newPrice": 200,
-            "oldPrice": 300,
-            "description": "2 Montres au choix (Groupe B)",
-            "type": "pack3",
-            "defaultSlot1": 5,
-            "defaultSlot2": 6,
-            "slot1Group": "B",
-            "slot2Group": "B"
+            "price": 299,
+            "oldPrice": 499
         }
     ]
 }
