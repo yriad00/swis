@@ -1,11 +1,24 @@
 <?php
+/**
+ * Swis Brands - Sitemap Generator
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
+
+// Define root constant for includes (if not already defined)
+if (!defined('SWIS_ROOT')) {
+    define('SWIS_ROOT', __DIR__);
+}
+require_once SWIS_ROOT . '/includes/config.php';
+
 // Security Headers
 header('X-Content-Type-Options: nosniff');
 header("Content-Type: application/xml; charset=utf-8");
 
-$jsonData = file_get_contents('data/products.json');
+$jsonData = file_get_contents(PRODUCTS_FILE);
 $data = json_decode($jsonData, true);
-$baseUrl = "https://swisbrands.ma"; // Change this to your actual domain
+$baseUrl = SITE_URL;
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>

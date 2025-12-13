@@ -1,8 +1,16 @@
 <?php
-require_once 'auth.php';
+/**
+ * Swis Brands - Site Settings Admin
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
 
-$settingsFile = '../data/settings.json';
-$settings = json_decode(file_get_contents($settingsFile), true);
+require_once __DIR__ . '/../includes/admin-bootstrap.php';
+
+$settings = getSettings();
+$success = '';
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token
@@ -10,16 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Session expirée, veuillez réessayer.';
     } else {
         $newSettings = [
-            'whatsapp_number' => preg_replace('/[^0-9]/', '', $_POST['whatsapp_number']), // Only digits
-            'site_title' => htmlspecialchars(strip_tags($_POST['site_title']), ENT_QUOTES, 'UTF-8'),
-            'hero_title' => htmlspecialchars(strip_tags($_POST['hero_title']), ENT_QUOTES, 'UTF-8'),
-            'hero_subtitle' => htmlspecialchars(strip_tags($_POST['hero_subtitle']), ENT_QUOTES, 'UTF-8'),
-            'currency' => htmlspecialchars(strip_tags($_POST['currency']), ENT_QUOTES, 'UTF-8')
+            'whatsapp_number' => preg_replace('/[^0-9]/', '', $_POST['whatsapp_number'] ?? ''),
+            'site_title' => sanitizeStrict($_POST['site_title'] ?? ''),
+            'hero_title' => sanitizeStrict($_POST['hero_title'] ?? ''),
+            'hero_subtitle' => sanitizeStrict($_POST['hero_subtitle'] ?? ''),
+            'currency' => sanitizeStrict($_POST['currency'] ?? 'DH')
         ];
         
-        file_put_contents($settingsFile, json_encode($newSettings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        $success = "Paramètres mis à jour avec succès !";
-        $settings = $newSettings;
+        if (saveJsonFile(SETTINGS_FILE, $newSettings)) {
+            $success = "Paramètres mis à jour avec succès !";
+            $settings = $newSettings;
+        } else {
+            $error = "Erreur lors de la sauvegarde.";
+        }
     }
 }
 ?>
@@ -41,8 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="index.php" class="font-bold text-xl text-gray-800">Swis Admin</a>
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <a href="index.php" class="text-gray-500 hover:text-gray-700 mr-4">Retour au Dashboard</a>
+                <div class="flex items-center space-x-4">
+                    <a href="tracking.php" class="text-purple-600 hover:text-purple-800"><i class="fas fa-chart-line mr-1"></i> Tracking</a>
+                    <a href="index.php" class="text-gray-500 hover:text-gray-700">Retour au Dashboard</a>
+                    <a href="logout.php" class="text-red-500 hover:text-red-700">Déconnexion</a>
                 </div>
             </div>
         </div>

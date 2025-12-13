@@ -1,260 +1,34 @@
 <?php
-// Security Headers - prevent MIME sniffing, clickjacking, XSS
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: SAMEORIGIN');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
+/**
+ * Swis Brands - Homepage
+ * Main landing page with products, cart, and checkout
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
 
-// Load settings with error handling
-$settingsFile = 'data/settings.json';
-if (!file_exists($settingsFile)) {
-    die('Error: Settings file not found. Please ensure data/settings.json exists.');
-}
-$settingsJson = file_get_contents($settingsFile);
-$settings = json_decode($settingsJson, true);
-if ($settings === null) {
-    die('Error: Invalid settings.json format.');
-}
+// Initialize application
+require_once __DIR__ . '/includes/bootstrap.php';
 
-// Load products with error handling
-$productsFile = 'data/products.json';
-if (!file_exists($productsFile)) {
-    die('Error: Products file not found. Please ensure data/products.json exists.');
-}
+// Get data
+$settings = getSettings();
+$products = getProductsData();
+
+// Page metadata
+$pageTitle = $settings['site_title'] ?? 'Swis Brands | Montres de Luxe pour Femmes';
+$pageDescription = 'Découvrez Swis Brands, la référence des montres de luxe pour femmes au Maroc. Élégance, style et qualité supérieure. Livraison partout au Maroc.';
+$pageKeywords = 'montres femmes, luxe, maroc, swis brands, mode, accessoires, cadeaux, casablanca, rabat, marrakech';
+$pageImage = SITE_URL . '/images/logo_swis_rm.png';
+$pageUrl = SITE_URL;
+
+// Include header
+require_once SWIS_ROOT . '/includes/partials/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Découvrez Swis Brands, la référence des montres de luxe pour femmes au Maroc. Élégance, style et qualité supérieure. Livraison partout au Maroc.">
-    <meta name="keywords" content="montres femmes, luxe, maroc, swis brands, mode, accessoires, cadeaux, casablanca, rabat, marrakech">
-    <meta property="og:title" content="<?php echo htmlspecialchars($settings['site_title']); ?>">
-    <meta property="og:description" content="Élégance et raffinement pour la femme marocaine moderne. Découvrez notre nouvelle collection.">
-    <meta property="og:image" content="images/logo_swis_rm.png">
-    <meta property="og:url" content="https://swisbrands.ma">
-    <title><?php echo htmlspecialchars($settings['site_title']); ?></title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            gold: '#D4AF37',
-                            goldLight: '#F3E5AB',
-                            black: '#1a1a1a',
-                            light: '#f9f9f9',
-                            rose: '#E6C0C0',
-                            red: '#C41E3A'
-                        }
-                    },
-                    fontFamily: {
-                        serif: ['Playfair Display', 'serif'],
-                        sans: ['Poppins', 'sans-serif'],
-                        arabic: ['Cairo', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #D4AF37;
-            border-radius: 4px;
-        }
-        
-        /* Hide scrollbar but allow scroll */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* Safe area for iOS */
-        .safe-bottom {
-            padding-bottom: max(12px, env(safe-area-inset-bottom));
-        }
-        
-        html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 100px; /* Fix for fixed navbar covering content */
-        }
-
-        .fade-in {
-            animation: fadeIn 0.8s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.90); /* More transparency */
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1); /* Subtle gold border */
-        }
-
-        .product-card {
-            transition: all 0.4s ease;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
-        }
-        
-        /* Bundle Composer Styles */
-        #bundle-modal .bundle-slot.active {
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
-        }
-        
-        #bundle-modal .variant-card {
-            transition: all 0.2s ease;
-        }
-        #bundle-modal .variant-card:active {
-            transform: scale(0.95);
-        }
-        #bundle-modal .variant-card.selected {
-            border-color: #D4AF37;
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
-        }
-        
-        /* Modal Transitions */
-        .modal {
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            transform: scale(0.95);
-            transition: transform 0.3s ease-in-out;
-        }
-        .modal.active .modal-content {
-            transform: scale(1);
-        }
-
-        /* Variant Selection Styles */
-        .variant-option {
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-        .variant-option.selected {
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
-        }
-        
-        /* New Badge Animation */
-        .badge-pulse {
-            animation: pulse-badge 2s infinite;
-        }
-        @keyframes pulse-badge {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-        }
-
-        /* Input Styles */
-        .form-input:focus, .form-select:focus {
-            border-color: #D4AF37;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-        }
-        
-        /* Luxury Typography Tweaks */
-        h1, h2, h3, h4 {
-            letter-spacing: -0.02em;
-        }
-        .tracking-widest {
-            letter-spacing: 0.15em;
-        }
-    </style>
-</head>
-<body class="font-sans text-brand-black bg-white antialiased">
-
-    <!-- Navbar -->
-    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-24">
-                <!-- Mobile Menu Button -->
-                <button class="md:hidden text-2xl focus:outline-none" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-
-                <!-- Logo -->
-                <div class="flex-shrink-0 flex items-center">
-                    <a href="#" class="flex flex-col items-center">
-                        <img src="images/logo_swis_rm.png" id="logo-img-nav" alt="Swis Brands Logo" class="h-28 md:h-28 w-auto object-contain">
-                    </a>
-                </div>
-
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex flex-1 justify-center space-x-10 items-center">
-                    <a href="#home" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
-                        Accueil
-                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#new-arrivals" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
-                        Nouveautés
-                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#new-year" class="text-xs lg:text-sm uppercase tracking-widest text-brand-red hover:text-brand-black transition font-bold relative group">
-                        Nouvel An 2026
-                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-red transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#promo-packs" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
-                        Packs Promo
-                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#collection" class="text-xs lg:text-sm uppercase tracking-widest hover:text-brand-gold transition font-medium relative group">
-                        Collection
-                        <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-gold transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                </div>
-
-                <!-- Icons -->
-                <div class="flex items-center space-x-6">
-                    <button class="relative hover:text-brand-gold transition" onclick="toggleCart()">
-                        <i class="fas fa-shopping-bag text-xl"></i>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-brand-gold text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-0 transition-transform duration-200">0</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 absolute w-full shadow-lg">
-            <a href="#home" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Accueil <span class="font-arabic float-right text-gray-400 text-xs">الرئيسية</span></a>
-            <a href="#new-arrivals" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-gold font-bold">Nouveautés <span class="font-arabic float-right text-brand-gold text-xs">وصل حديثاً</span></a>
-            <a href="#new-year" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100 text-brand-red font-bold">Nouvel An 2026 <span class="font-arabic float-right text-brand-red text-xs">عروض رأس السنة</span></a>
-            <a href="#promo-packs" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Packs Promo <span class="font-arabic float-right text-gray-400 text-xs">تخفيضات</span></a>
-            <a href="#collection" onclick="toggleMobileMenu()" class="block py-3 text-sm uppercase tracking-widest border-b border-gray-100">Collection <span class="font-arabic float-right text-gray-400 text-xs">التشكيلة</span></a>
-        </div>
-    </nav>
 
     <!-- Hero Section -->
     <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <img src="images/IMG-20251118-WA0073.jpg" alt="Luxury Watch" class="w-full h-full object-cover">
+            <img src="/images/IMG-20251118-WA0073.jpg" alt="Luxury Watch" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
 
@@ -290,23 +64,21 @@ if (!file_exists($productsFile)) {
         </div>
     </section>
 
-    <!-- SECTION: NEW ARRIVALS (NOUVEAUTÉS) -->
+    <!-- SECTION: NEW ARRIVALS -->
     <section id="new-arrivals" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4">
-          
-
             <div id="new-arrivals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Rendered by JS -->
             </div>
         </div>
     </section>
 
-    <!-- SECTION: NEW YEAR COLLECTION (RASS SANA) -->
+    <!-- SECTION: NEW YEAR COLLECTION -->
     <section id="new-year" class="py-20 bg-brand-black text-white relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold opacity-10 rounded-full transform translate-x-1/2 -translate-y-1/2"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-gold opacity-5 rounded-full transform -translate-x-1/2 translate-y-1/2"></div>
         
-        <!-- Floating confetti/stars decoration -->
+        <!-- Floating decoration -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute top-10 left-10 text-brand-gold text-2xl animate-pulse">✦</div>
             <div class="absolute top-20 right-20 text-brand-gold text-xl animate-bounce" style="animation-delay: 0.5s">★</div>
@@ -317,7 +89,6 @@ if (!file_exists($productsFile)) {
         <div class="max-w-7xl mx-auto px-4 relative z-10">
             <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
                 <div class="md:w-1/2 text-center md:text-left">
-                    <!-- New Year Badge -->
                     <div class="inline-flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-brand-gold/20 to-brand-red/20 border border-brand-gold text-brand-gold text-sm tracking-widest uppercase mb-4 rounded-full">
                         <span class="animate-pulse">🎆</span>
                         <span>عروض رأس السنة 2026</span>
@@ -336,7 +107,7 @@ if (!file_exists($productsFile)) {
                         🎁 هدايا حصرية و عروض ما كتتعاودش 🎁
                     </p>
                     
-                    <!-- FUNCTIONAL COUNTDOWN TO JAN 1, 2026 -->
+                    <!-- Countdown -->
                     <div class="flex justify-center md:justify-start gap-2 md:gap-4 mb-6">
                         <div class="text-center">
                             <div id="days" class="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-b from-white/20 to-white/5 backdrop-blur border border-brand-gold/30 flex items-center justify-center text-xl md:text-2xl font-bold text-brand-gold shadow-lg">00</div>
@@ -377,7 +148,6 @@ if (!file_exists($productsFile)) {
                     <div class="absolute inset-0 border-2 border-brand-gold/50 transform translate-x-3 translate-y-3 rounded-2xl"></div>
                     <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-gold/20">
                         <img src="/images/IMG-20251111-WA0005.jpg" alt="Swis Brands New Year 2026" class="w-full object-cover h-[350px] md:h-[500px]">
-                        <!-- Overlay badge -->
                         <div class="absolute top-4 right-4 bg-brand-red text-white px-4 py-2 rounded-full text-sm font-bold animate-bounce">
                             🔥 -50%
                         </div>
@@ -425,7 +195,7 @@ if (!file_exists($productsFile)) {
         </div>
     </section>
 
-    <!-- Customer Reviews (Testimonials) -->
+    <!-- Customer Reviews -->
     <section class="py-20 bg-brand-black text-white">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16">
@@ -436,8 +206,7 @@ if (!file_exists($productsFile)) {
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Review 1 -->
-                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300 group">
+                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300">
                     <div class="flex items-center gap-4 mb-6">
                         <img src="https://ui-avatars.com/api/?name=Salma+Benani&background=D4AF37&color=fff" alt="Salma" class="w-12 h-12 rounded-full border-2 border-brand-gold">
                         <div>
@@ -452,8 +221,7 @@ if (!file_exists($productsFile)) {
                     </p>
                 </div>
 
-                <!-- Review 2 -->
-                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300 group">
+                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300">
                     <div class="flex items-center gap-4 mb-6">
                         <img src="https://ui-avatars.com/api/?name=Imane+Tazi&background=D4AF37&color=fff" alt="Imane" class="w-12 h-12 rounded-full border-2 border-brand-gold">
                         <div>
@@ -468,8 +236,7 @@ if (!file_exists($productsFile)) {
                     </p>
                 </div>
 
-                <!-- Review 3 -->
-                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300 group">
+                <div class="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-brand-gold transition duration-300">
                     <div class="flex items-center gap-4 mb-6">
                         <img src="https://ui-avatars.com/api/?name=Houda+Idrissi&background=D4AF37&color=fff" alt="Houda" class="w-12 h-12 rounded-full border-2 border-brand-gold">
                         <div>
@@ -487,68 +254,31 @@ if (!file_exists($productsFile)) {
         </div>
     </section>
 
-    <!-- Shopping Cart Sidebar -->
-    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
-        <div class="h-full flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center bg-brand-black text-white">
-                <div>
-                    <h2 class="font-serif text-xl">Mon Panier</h2>
-                    <p class="font-arabic text-xs text-gray-400">سلة المشتريات</p>
-                </div>
-                <button onclick="toggleCart()" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-            <div class="p-6 border-t bg-gray-50">
-                <div class="flex justify-between mb-4 font-bold text-lg">
-                    <span>Total / المجموع</span>
-                    <span id="cart-total">0.00 MAD</span>
-                </div>
-                <!-- Changed onclick to openCheckoutModal -->
-                <button onclick="openCheckoutModal()" class="w-full bg-green-600 text-white py-4 uppercase tracking-widest font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 rounded-lg shadow-lg">
-                    <i class="fab fa-whatsapp text-2xl"></i> 
-                    <div class="text-left leading-tight">
-                        <span class="block text-xs">Commander via</span>
-                        <span class="block font-bold">WhatsApp</span>
-                    </div>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden fade-in"></div>
-
-    <!-- PRODUCT DETAILS MODAL (POPUP) -->
+    <!-- PRODUCT DETAILS MODAL -->
     <div id="product-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center p-3 md:p-4">
-        <!-- Backdrop -->
         <div class="absolute inset-0 bg-black bg-opacity-80" onclick="closeModal()"></div>
         
-        <!-- Modal Content - Centered with rounded corners -->
         <div class="modal-content bg-white w-full max-h-[88vh] md:max-h-[85vh] md:w-[90%] md:max-w-4xl rounded-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col md:flex-row">
             
-            <!-- Close Button -->
-            <button onclick="closeModal()" class="absolute top-3 right-3 z-30 bg-white/90 text-gray-600 rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:text-brand-red transition">
+            <button onclick="closeModal()" class="absolute top-3 right-3 z-30 bg-white/90 text-gray-600 rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:text-brand-red transition" aria-label="Fermer">
                 <i class="fas fa-times text-lg"></i>
             </button>
 
-            <!-- Image Side - 45vh on mobile, proper height on desktop -->
+            <!-- Image Side -->
             <div class="relative w-full h-[42vh] md:h-auto md:w-1/2 bg-gray-100 flex-shrink-0">
                 <img id="modal-image" src="" alt="Watch Detail" class="w-full h-full object-cover transition duration-500">
                 
-                <!-- Navigation Arrows -->
-                <button id="modal-prev-btn" onclick="navigateModalImage(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition">
+                <button id="modal-prev-btn" onclick="navigateModalImage(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition" aria-label="Image précédente">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button id="modal-next-btn" onclick="navigateModalImage(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition">
+                <button id="modal-next-btn" onclick="navigateModalImage(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brand-black w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 hidden active:scale-95 transition" aria-label="Image suivante">
                     <i class="fas fa-chevron-right"></i>
                 </button>
                 
-                <!-- Image Counter -->
                 <div id="modal-image-counter" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 text-xs font-bold rounded-full hidden">
                     <span id="modal-current-index">1</span> / <span id="modal-total-images">1</span>
                 </div>
                 
-                <!-- Gallery Mode Toggle -->
                 <button id="modal-gallery-toggle" onclick="toggleModalGalleryMode()" class="absolute top-3 left-3 bg-white/90 hover:bg-white text-brand-black px-3 py-1.5 rounded-full shadow text-xs font-bold hidden">
                     <i class="fas fa-images mr-1"></i><span id="gallery-toggle-text">Toutes</span>
                 </button>
@@ -561,17 +291,15 @@ if (!file_exists($productsFile)) {
                     <h2 id="modal-title" class="text-lg md:text-2xl font-serif font-bold text-brand-black mb-0.5">Product Title</h2>
                     <h3 id="modal-arabic" class="text-sm md:text-lg font-arabic text-gray-500 mb-2">اسم المنتج</h3>
 
-                    <!-- VARIANT SELECTION (COLOR) -->
+                    <!-- Variant Selection -->
                     <div id="variant-section" class="mb-3 hidden">
                         <label class="block text-[10px] md:text-xs font-bold uppercase tracking-widest text-brand-black mb-2">
                             Couleur / اللون: <span id="selected-variant-name" class="text-brand-gold ml-1"></span>
                         </label>
-                        <div id="variant-options" class="flex flex-wrap gap-2">
-                            <!-- Variants injected here by JS -->
-                        </div>
+                        <div id="variant-options" class="flex flex-wrap gap-2"></div>
                     </div>
 
-                    <!-- Price & Quantity Row -->
+                    <!-- Price & Quantity -->
                     <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                         <div class="flex items-center gap-2">
                             <span id="modal-price" class="text-2xl md:text-3xl font-bold text-brand-black">000 DH</span>
@@ -585,7 +313,7 @@ if (!file_exists($productsFile)) {
                     </div>
                 </div>
 
-                <!-- Actions - Fixed at bottom -->
+                <!-- Actions -->
                 <div class="p-4 pt-2 border-t bg-white">
                     <div class="flex gap-3">
                         <button id="modal-add-btn" class="flex-1 bg-brand-black text-white py-3.5 rounded-lg uppercase tracking-widest font-bold hover:bg-brand-gold transition shadow-lg text-xs md:text-sm">
@@ -605,169 +333,64 @@ if (!file_exists($productsFile)) {
         </div>
     </div>
 
-    <!-- *** CHECKOUT MODAL (NEW) *** -->
-    <div id="checkout-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
-        <div class="absolute inset-0 bg-black bg-opacity-70" onclick="closeCheckoutModal()"></div>
-        <div class="modal-content bg-white w-full max-w-md rounded-2xl shadow-2xl relative z-10 p-8">
-            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            
-            <div class="text-center mb-6">
-                <h2 class="font-serif text-2xl font-bold text-brand-black mb-2">Finaliser la Commande</h2>
-                <p class="text-gray-500 text-sm font-arabic">أكملي المعلومات للطلب</p>
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Nom Complet / الاسم الكامل</label>
-                    <input type="text" id="checkout-name" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Votre nom...">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Téléphone / الهاتف</label>
-                    <input type="tel" id="checkout-phone" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="06 XX XX XX XX">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Ville / المدينة</label>
-                    <select id="checkout-city" class="form-select w-full border border-gray-300 rounded-lg p-3 text-sm bg-white">
-                        <option value="">Choisir une ville...</option>
-                        <option value="Casablanca">Casablanca</option>
-                        <option value="Rabat">Rabat</option>
-                        <option value="Marrakech">Marrakech</option>
-                        <option value="Tanger">Tanger</option>
-                        <option value="Agadir">Agadir</option>
-                        <option value="Fès">Fès</option>
-                        <option value="Meknès">Meknès</option>
-                        <option value="Oujda">Oujda</option>
-                        <option value="Kenitra">Kenitra</option>
-                        <option value="Tetouan">Tetouan</option>
-                        <option value="Sale">Salé</option>
-                        <option value="Temara">Témara</option>
-                        <option value="Mohammedia">Mohammedia</option>
-                        <option value="El Jadida">El Jadida</option>
-                        <option value="Safi">Safi</option>
-                        <option value="Beni Mellal">Beni Mellal</option>
-                        <option value="Nador">Nador</option>
-                        <option value="Autre">Autre / Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1">Adresse / العنوان</label>
-                    <input type="text" id="checkout-address" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Ex: Quartier, Rue, N°...">
-                </div>
-                
-                <button onclick="finalizeOrder()" class="w-full bg-green-600 text-white py-4 mt-4 rounded-lg uppercase tracking-widest font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center gap-2">
-                    <span>Confirmer sur WhatsApp</span>
-                    <i class="fab fa-whatsapp text-lg"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-brand-black text-white py-16 border-t-4 border-brand-gold">
-        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
-            <div class="flex flex-col items-center md:items-start">
-                 <img src="/images/Gemini_Generated_Image_82jog382jog382jo.png" id="logo-img-footer" alt="Swis Brands Logo" class="h-20 w-auto object-contain mb-6 bg-white p-2 rounded">
-                <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                    Swis Brands est plus qu'une montre. C'est une déclaration d'élégance pour la femme marocaine moderne.
-                </p>
-            </div>
-            <div>
-                <h4 class="font-serif text-lg mb-6 text-brand-gold uppercase tracking-widest">Contactez-nous</h4>
-                <ul class="space-y-4 text-gray-400 text-sm">
-                      <a href="https://www.instagram.com/swis_maroc/" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-gold hover:text-white transition transform hover:-translate-y-1">
-                        <i class="fab fa-whatsapp text-xl"></i>
-                    </a>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-serif text-lg mb-6 text-brand-gold uppercase tracking-widest">Suivez-nous</h4>
-                <div class="flex space-x-4 justify-center md:justify-start">
-                    <a href="https://www.instagram.com/swis_maroc/" class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-gold hover:text-white transition transform hover:-translate-y-1">
-                        <i class="fab fa-instagram text-xl"></i>
-                    </a>
-                  
-                </div>
-            </div>
-        </div>
-        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-600 text-xs">
-            &copy; 2026 Swis Brands. All rights reserved.
-        </div>
-    </footer>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-brand-black text-white px-6 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-[80] flex items-center gap-2 w-max">
-        <i class="fas fa-check-circle text-green-500"></i>
-        <span>Ajouté au panier!</span>
-    </div>
-
+    <!-- Page-Specific JavaScript -->
     <script>
-        <?php
-        $productsJson = file_get_contents($productsFile);
-        $data = json_decode($productsJson, true);
-        if ($data === null) {
-            die('Error: Invalid products.json format.');
-        }
-        
-        // Safely encode data for JavaScript with proper escaping
-        $jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE;
-        ?>
-        // --- DATA ---
-        
-        // 1. New Arrivals Data
-        const newArrivals = <?php echo json_encode($data['newArrivals'] ?? [], $jsonOptions); ?>;
-
-        // 2. Main Collection Data
-        const allProducts = <?php echo json_encode($data['allProducts'] ?? [], $jsonOptions); ?>;
-
-        // 3. Packs Data
-        const promoPacks = <?php echo json_encode($data['promoPacks'] ?? [], $jsonOptions); ?>;
-
-        let cart = JSON.parse(localStorage.getItem('swisCart')) || [];
-        let visibleProducts = 4;
-        let currentSelectedVariant = null; 
-        let currentModalQty = 1;
-        
-        // Image navigation state
-        let modalImages = [];
-        let currentImageIndex = 0;
-        
-        // Current modal product reference
-        let currentModalProduct = null;
-        let currentModalType = 'collection';
-
-        // Helper function to escape HTML for XSS prevention
+        // Helper function to escape HTML for XSS prevention (defined early for use in rendering)
         function escapeHtml(text) {
             if (text === null || text === undefined) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
+        
+        // Site settings (needed for currency display)
+        var siteSettings = {
+            whatsappNumber: '<?php echo sanitize($settings['whatsapp_number'] ?? ''); ?>',
+            currency: '<?php echo sanitize($settings['currency'] ?? 'DH'); ?>'
+        };
+        
+        // Cart management
+        var cart = JSON.parse(localStorage.getItem('swisCart')) || [];
+        
+        // Product data from PHP
+        const newArrivals = <?php echo safeJsonEncode($products['newArrivals'] ?? []); ?>;
+        const allProducts = <?php echo safeJsonEncode($products['allProducts'] ?? []); ?>;
+        const promoPacks = <?php echo safeJsonEncode($products['promoPacks'] ?? []); ?>;
+        
+        // State variables
+        let visibleProducts = 4;
+        let currentSelectedVariant = null;
+        let currentModalQty = 1;
+        let modalImages = [];
+        let currentImageIndex = 0;
+        let currentModalProduct = null;
+        let currentModalType = 'collection';
+        let modalGalleryMode = 'all';
+        let allProductImages = [];
+        let variantImages = [];
 
+        // Quantity adjustment
         function adjustModalQty(change) {
             currentModalQty += change;
             if (currentModalQty < 1) currentModalQty = 1;
             document.getElementById('modal-qty').textContent = currentModalQty;
         }
 
-        // --- COUNTDOWN TO NEW YEAR 2026 ---
+        // Countdown to New Year 2026
         function startCountdown() {
-            // Set target to January 1, 2026 at midnight (Morocco time)
             const endDate = new Date('2026-01-01T00:00:00+01:00');
             
             const timer = setInterval(function() {
                 const now = new Date().getTime();
                 const distance = endDate - now;
                 
-                if (distance < 0) { 
-                    // New Year has arrived!
+                if (distance < 0) {
                     clearInterval(timer);
                     document.getElementById("days").innerHTML = "🎉";
                     document.getElementById("hours").innerHTML = "🎊";
                     document.getElementById("minutes").innerHTML = "🎆";
                     document.getElementById("seconds").innerHTML = "✨";
-                    return; 
+                    return;
                 }
                 
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -782,11 +405,14 @@ if (!file_exists($productsFile)) {
             }, 1000);
         }
 
-        // --- RENDER FUNCTIONS ---
-        
-        // 1. New Arrivals
+        // Render New Arrivals
         function renderNewArrivals() {
             const grid = document.getElementById('new-arrivals-grid');
+            if (!grid || newArrivals.length === 0) {
+                if (grid) grid.closest('section').style.display = 'none';
+                return;
+            }
+            
             grid.innerHTML = newArrivals.map(product => `
                 <div class="product-card cursor-pointer group relative bg-white pb-4 rounded-xl overflow-hidden hover:shadow-2xl transition duration-300 border border-gray-100" onclick="openModal(${product.id}, 'new')">
                     <div class="absolute top-4 left-4 z-10 bg-brand-black text-brand-gold text-[10px] font-bold px-3 py-1 rounded-full badge-pulse uppercase tracking-widest border border-brand-gold">
@@ -798,16 +424,17 @@ if (!file_exists($productsFile)) {
                     <div class="text-center px-4">
                         <h3 class="font-serif text-lg text-brand-black font-bold mb-1">${escapeHtml(product.name)}</h3>
                         <p class="font-arabic text-sm text-gray-400 mb-2">${escapeHtml(product.arabicName)}</p>
-                        <p class="text-brand-gold font-bold text-xl">${product.price} DH</p>
+                        <p class="text-brand-gold font-bold text-xl">${product.price} ${siteSettings.currency}</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        // 2. Main Products
+        // Render Main Products
         function renderProducts() {
             const productsToShow = allProducts.slice(0, visibleProducts);
             const grid = document.getElementById('product-grid');
+            
             grid.innerHTML = productsToShow.map(product => `
                 <div class="product-card cursor-pointer group relative bg-white pb-2 md:pb-4 rounded-lg overflow-hidden hover:shadow-lg transition duration-300 border border-gray-100" onclick="openModal(${product.id}, 'collection')">
                     <div class="relative overflow-hidden aspect-w-1 aspect-h-1 h-40 md:h-80 bg-gray-100 mb-2 md:mb-4">
@@ -823,16 +450,15 @@ if (!file_exists($productsFile)) {
                         <h3 class="font-serif text-sm md:text-lg text-brand-black mb-0 truncate">${escapeHtml(product.name)}</h3>
                         <p class="font-arabic text-xs md:text-sm text-gray-500 mb-1 md:mb-2 truncate">${escapeHtml(product.arabicName)}</p>
                         
-                        <!-- Price Block -->
                         <div class="flex items-center justify-center gap-2 mb-2">
-                             ${product.oldPrice ? `<span class="text-gray-400 line-through text-xs md:text-sm">${product.oldPrice} DH</span>` : ''}
-                             <p class="text-brand-gold font-bold text-base md:text-xl">${product.price} DH</p>
+                            ${product.oldPrice ? `<span class="text-gray-400 line-through text-xs md:text-sm">${product.oldPrice} ${siteSettings.currency}</span>` : ''}
+                            <p class="text-brand-gold font-bold text-base md:text-xl">${product.price} ${siteSettings.currency}</p>
                         </div>
 
                         ${product.variants && product.variants.length > 1 ? 
                             `<div class="flex justify-center gap-1 mt-1 md:mt-2">
                                 ${product.variants.map(v => `<div class="w-2 h-2 md:w-3 md:h-3 rounded-full border border-gray-200" style="background-color: ${escapeHtml(v.color)}"></div>`).join('')}
-                             </div>` : ''
+                            </div>` : ''
                         }
                     </div>
                 </div>
@@ -843,9 +469,14 @@ if (!file_exists($productsFile)) {
             }
         }
 
-        // 3. Packs
+        // Render Packs
         function renderPacks() {
             const container = document.getElementById('packs-container');
+            if (!container || promoPacks.length === 0) {
+                if (container) container.closest('section').style.display = 'none';
+                return;
+            }
+            
             container.innerHTML = promoPacks.map(pack => `
                 <div class="product-card cursor-pointer group relative bg-white pb-2 md:pb-4 rounded-lg overflow-hidden hover:shadow-lg transition duration-300 border border-brand-rose/20" onclick="openModal(${pack.id}, 'pack')">
                     <div class="absolute top-3 left-3 z-10 bg-brand-red text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-full">PROMO</div>
@@ -862,173 +493,116 @@ if (!file_exists($productsFile)) {
                         <h3 class="font-serif text-sm md:text-lg text-brand-black mb-0 truncate">${escapeHtml(pack.name)}</h3>
                         <p class="font-arabic text-xs md:text-sm text-gray-500 mb-1 md:mb-2 truncate">${escapeHtml(pack.arabicName)}</p>
                         
-                        <!-- Price Block -->
                         <div class="flex items-center justify-center gap-2 mb-2">
-                             ${pack.oldPrice ? `<span class="text-gray-400 line-through text-xs md:text-sm">${pack.oldPrice} DH</span>` : ''}
-                             <p class="text-brand-red font-bold text-base md:text-xl">${pack.price || pack.newPrice} DH</p>
+                            ${pack.oldPrice ? `<span class="text-gray-400 line-through text-xs md:text-sm">${pack.oldPrice} ${siteSettings.currency}</span>` : ''}
+                            <p class="text-brand-red font-bold text-base md:text-xl">${pack.price || pack.newPrice} ${siteSettings.currency}</p>
                         </div>
-
-                        ${pack.variants && pack.variants.length > 1 ? 
-                            `<div class="flex justify-center gap-1 mt-1 md:mt-2">
-                                ${pack.variants.map(v => `<div class="w-2 h-2 md:w-3 md:h-3 rounded-full border border-gray-200" style="background-color: ${escapeHtml(v.color)}"></div>`).join('')}
-                             </div>` : ''
-                        }
                     </div>
                 </div>
             `).join('');
         }
 
-        // --- MODAL & CART LOGIC ---
-
+        // Find product helper
         function findProduct(id, type) {
-            // type should be: 'pack', 'new', or 'collection'
             if (type === 'pack') return promoPacks.find(p => p.id === id);
             if (type === 'new') return newArrivals.find(p => p.id === id);
-            // 'collection' or any other value defaults to allProducts
             return allProducts.find(p => p.id === id);
         }
 
+        // Open product modal
         function openModal(id, type = 'collection') {
             const product = findProduct(id, type);
             if (!product) return;
 
-            // Store product reference for variant selection
             currentModalProduct = product;
             currentModalType = type;
 
-            // Basic Info
             document.getElementById('modal-title').textContent = product.name;
             document.getElementById('modal-arabic').textContent = product.arabicName;
             
-            // Logic for Price - support both old format (newPrice) and new format (price)
             let currentPrice = product.price || product.newPrice;
-            let showOldPrice = false;
-            let oldPriceVal = 0;
-
-            if (product.oldPrice) {
-                showOldPrice = true;
-                oldPriceVal = product.oldPrice;
-            }
-            
-            document.getElementById('modal-price').textContent = currentPrice + ' DH';
+            document.getElementById('modal-price').textContent = currentPrice + ' ' + siteSettings.currency;
             document.getElementById('modal-category').textContent = product.category || 'Pack Promo';
 
             const oldPriceEl = document.getElementById('modal-old-price');
-            if (showOldPrice) {
-                oldPriceEl.textContent = oldPriceVal + ' DH';
+            if (product.oldPrice) {
+                oldPriceEl.textContent = product.oldPrice + ' ' + siteSettings.currency;
                 oldPriceEl.classList.remove('hidden');
             } else {
                 oldPriceEl.classList.add('hidden');
             }
 
-            // Variant and Gallery Logic
             const variantSection = document.getElementById('variant-section');
             const variantOptionsDiv = document.getElementById('variant-options');
-            currentSelectedVariant = null; 
-            
-            // Reset Quantity
+            currentSelectedVariant = null;
             currentModalQty = 1;
             document.getElementById('modal-qty').textContent = currentModalQty;
 
-            // Check if product has real variants (non-empty array)
             const hasVariants = product.variants && product.variants.length > 0;
-            // Check if product has gallery images
             const hasGallery = product.gallery && product.gallery.length > 0;
 
-            // Build image array for navigation - ONLY gallery images (not variants)
-            // Start with main product image, then add gallery
             modalImages = [product.image];
             if (hasGallery) {
                 product.gallery.forEach(img => {
-                    if (!modalImages.includes(img)) {
-                        modalImages.push(img);
-                    }
+                    if (!modalImages.includes(img)) modalImages.push(img);
                 });
             }
             
-            // Store all product images for gallery toggle
             allProductImages = [...modalImages];
-            variantImages = [...modalImages]; // Default to all
+            variantImages = [...modalImages];
             modalGalleryMode = 'all';
-            
             currentImageIndex = 0;
             
-            // Always set main image first
             document.getElementById('modal-image').src = product.image;
-            
-            // Hide gallery toggle by default
             document.getElementById('modal-gallery-toggle').classList.add('hidden');
-            
             updateImageNavigation();
 
             if (hasVariants) {
-                // Product has variants - show variants
                 variantSection.classList.remove('hidden');
                 currentSelectedVariant = product.variants[0];
                 document.getElementById('selected-variant-name').textContent = currentSelectedVariant.name;
 
-                // Build variant thumbnails (color swatches)
                 let thumbnailsHtml = product.variants.map((v, index) => `
                     <div onclick="selectVariant(${id}, ${index}, '${type}')" 
                          class="variant-option cursor-pointer rounded-lg overflow-hidden w-14 h-14 md:w-16 md:h-16 relative shadow-sm hover:shadow-md border-2 ${index === 0 ? 'selected border-brand-gold' : 'border-transparent'}"
                          title="${escapeHtml(v.name)}">
-                        <img src="${escapeHtml(v.image || product.image)}" class="w-full h-full object-cover pointer-events-none">
+                        <img src="${escapeHtml(v.image || product.image)}" class="w-full h-full object-cover pointer-events-none" alt="${escapeHtml(v.name)}">
                         <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] py-0.5 text-center truncate px-0.5">${escapeHtml(v.name)}</div>
                     </div>
                 `).join('');
                 
                 variantOptionsDiv.innerHTML = thumbnailsHtml;
                 
-                // Show first variant's image by default
                 const firstVariant = product.variants[0];
-                const firstVariantImage = firstVariant.image || product.image;
-                document.getElementById('modal-image').src = firstVariantImage;
+                document.getElementById('modal-image').src = firstVariant.image || product.image;
                 
-                // Build variant-specific gallery for first variant
                 variantImages = [];
-                if (firstVariant.image) {
-                    variantImages.push(firstVariant.image);
-                }
+                if (firstVariant.image) variantImages.push(firstVariant.image);
                 if (firstVariant.gallery && firstVariant.gallery.length > 0) {
                     firstVariant.gallery.forEach(img => {
-                        if (!variantImages.includes(img)) {
-                            variantImages.push(img);
-                        }
+                        if (!variantImages.includes(img)) variantImages.push(img);
                     });
                 }
-                if (variantImages.length === 0) {
-                    variantImages.push(product.image);
-                }
+                if (variantImages.length === 0) variantImages.push(product.image);
                 
-                // Start with variant images
                 modalGalleryMode = 'variant';
                 modalImages = [...variantImages];
                 currentImageIndex = 0;
                 
-                // Always show gallery toggle for products with variants so user can see "Image Principale"
-                const toggleBtn = document.getElementById('modal-gallery-toggle');
-                toggleBtn.classList.remove('hidden');
+                document.getElementById('modal-gallery-toggle').classList.remove('hidden');
                 document.getElementById('gallery-toggle-text').textContent = 'Toutes';
                 
                 updateImageNavigation();
-                
-            } else if (hasGallery) {
-                // No variants but has gallery - hide variant section, arrows will handle gallery
-                variantSection.classList.add('hidden');
             } else {
-                // No variants and no gallery
                 variantSection.classList.add('hidden');
-                document.getElementById('modal-image').src = product.image;
             }
 
-            const addBtn = document.getElementById('modal-add-btn');
-            addBtn.onclick = function() {
+            document.getElementById('modal-add-btn').onclick = function() {
                 addToCart(product.id, type, currentModalQty);
                 closeModal();
             };
 
-            const buyBtn = document.getElementById('modal-buy-now-btn');
-            buyBtn.onclick = function() {
+            document.getElementById('modal-buy-now-btn').onclick = function() {
                 addToCart(product.id, type, currentModalQty);
                 closeModal();
                 openCheckoutModal();
@@ -1038,65 +612,36 @@ if (!file_exists($productsFile)) {
             modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.add('active'); }, 10);
             
-            // Update URL for sharing
             updateUrlForProduct(id, type);
         }
 
-        // Track gallery mode: 'all' = all product images, 'variant' = variant-specific
-        let modalGalleryMode = 'all';
-        let allProductImages = []; // Store all product images for toggle
-        let variantImages = []; // Store current variant images
-
+        // Select variant
         function selectVariant(productId, variantIndex, type) {
-            // Use stored product reference for reliability
             const product = currentModalProduct;
-            if (!product || !product.variants || !product.variants[variantIndex]) {
-                console.error('Variant not found:', productId, variantIndex, type);
-                return;
-            }
+            if (!product || !product.variants || !product.variants[variantIndex]) return;
             
             const variant = product.variants[variantIndex];
             currentSelectedVariant = variant;
             
-            // Build variant-specific gallery
             variantImages = [];
-            
-            // Add variant's main image first
-            if (variant.image) {
-                variantImages.push(variant.image);
-            }
-            
-            // Add variant's gallery if exists
+            if (variant.image) variantImages.push(variant.image);
             if (variant.gallery && variant.gallery.length > 0) {
                 variant.gallery.forEach(img => {
-                    if (!variantImages.includes(img)) {
-                        variantImages.push(img);
-                    }
+                    if (!variantImages.includes(img)) variantImages.push(img);
                 });
             }
+            if (variantImages.length === 0) variantImages.push(product.image);
             
-            // If variant has no images, use product image
-            if (variantImages.length === 0) {
-                variantImages.push(product.image);
-            }
-            
-            // Switch to variant gallery mode
             modalGalleryMode = 'variant';
             modalImages = [...variantImages];
             currentImageIndex = 0;
             
-            // Update display
             document.getElementById('modal-image').src = modalImages[0];
             document.getElementById('selected-variant-name').textContent = variant.name;
-            
-            // Always show gallery toggle for products with variants so user can see "Image Principale"
-            const toggleBtn = document.getElementById('modal-gallery-toggle');
-            toggleBtn.classList.remove('hidden');
             document.getElementById('gallery-toggle-text').textContent = 'Toutes';
             
             updateImageNavigation();
             
-            // Update variant selection styling
             const options = document.querySelectorAll('.variant-option');
             options.forEach((opt, idx) => {
                 opt.classList.remove('selected', 'border-brand-gold');
@@ -1107,15 +652,13 @@ if (!file_exists($productsFile)) {
                 options[variantIndex].classList.remove('border-transparent');
             }
         }
-        
+
         function toggleModalGalleryMode() {
             if (modalGalleryMode === 'variant') {
-                // Switch to all images
                 modalGalleryMode = 'all';
                 modalImages = [...allProductImages];
                 document.getElementById('gallery-toggle-text').textContent = currentSelectedVariant ? currentSelectedVariant.name : 'Variante';
             } else {
-                // Switch back to variant images
                 modalGalleryMode = 'variant';
                 modalImages = [...variantImages];
                 document.getElementById('gallery-toggle-text').textContent = 'Toutes';
@@ -1126,32 +669,17 @@ if (!file_exists($productsFile)) {
             updateImageNavigation();
         }
 
-        function selectGalleryImage(element, imageSrc) {
-            // Update main image
-            document.getElementById('modal-image').src = imageSrc;
-            
-            // Update current index for navigation
-            const imgIndex = modalImages.indexOf(imageSrc);
-            if (imgIndex !== -1) {
-                currentImageIndex = imgIndex;
-                updateImageCounter();
-            }
-        }
-
-        // Image Navigation Functions
         function navigateModalImage(direction) {
             if (modalImages.length <= 1) return;
             
             currentImageIndex += direction;
-            
-            // Loop around
             if (currentImageIndex < 0) currentImageIndex = modalImages.length - 1;
             if (currentImageIndex >= modalImages.length) currentImageIndex = 0;
             
             document.getElementById('modal-image').src = modalImages[currentImageIndex];
             updateImageCounter();
         }
-        
+
         function updateImageNavigation() {
             const prevBtn = document.getElementById('modal-prev-btn');
             const nextBtn = document.getElementById('modal-next-btn');
@@ -1168,7 +696,7 @@ if (!file_exists($productsFile)) {
                 counter.classList.add('hidden');
             }
         }
-        
+
         function updateImageCounter() {
             document.getElementById('modal-current-index').textContent = currentImageIndex + 1;
             document.getElementById('modal-total-images').textContent = modalImages.length;
@@ -1178,19 +706,16 @@ if (!file_exists($productsFile)) {
             const modal = document.getElementById('product-modal');
             modal.classList.remove('active');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
-            
-            // Clear product from URL
             clearProductUrl();
         }
 
-        // Add to Cart Logic
+        // Add to cart
         function addToCart(id, type = 'collection', qty = 1) {
             const product = findProduct(id, type);
+            if (!product) return;
             
             const variantName = currentSelectedVariant ? currentSelectedVariant.name : "Standard";
             const variantImage = currentSelectedVariant ? currentSelectedVariant.image : product.image;
-            
-            // Support both old format (newPrice) and new format (price)
             const finalPrice = product.price || product.newPrice;
 
             const cartItemId = `${product.id}-${variantName.replace(/\s+/g, '')}`;
@@ -1220,193 +745,31 @@ if (!file_exists($productsFile)) {
             }
         }
 
-        function removeFromCart(cartId) {
-            cart = cart.filter(item => item.cartId !== cartId);
-            saveCart();
-            updateCartUI();
+        // URL management
+        function updateUrlForProduct(id, type) {
+            const url = new URL(window.location);
+            url.searchParams.set('product', id);
+            url.searchParams.set('type', type);
+            window.history.replaceState({}, '', url);
         }
 
-        function updateQuantity(cartId, change) {
-            const item = cart.find(item => item.cartId === cartId);
-            if (item) {
-                item.quantity += change;
-                if (item.quantity <= 0) {
-                    removeFromCart(cartId);
-                } else {
-                    saveCart();
-                    updateCartUI();
-                }
-            }
+        function clearProductUrl() {
+            const url = new URL(window.location);
+            url.searchParams.delete('product');
+            url.searchParams.delete('type');
+            window.history.replaceState({}, '', url);
         }
 
-        function saveCart() {
-            localStorage.setItem('swisCart', JSON.stringify(cart));
-        }
-
-        function updateCartUI() {
-            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const countEl = document.getElementById('cart-count');
-            countEl.textContent = totalCount;
-            totalCount > 0 ? countEl.classList.remove('scale-0') : countEl.classList.add('scale-0');
-
-            const container = document.getElementById('cart-items');
-            if (cart.length === 0) {
-                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400"><i class="fas fa-shopping-basket text-4xl mb-4 text-gray-300"></i><p>Votre panier est vide</p></div>`;
-            } else {
-                container.innerHTML = cart.map(item => `
-                    <div class="flex items-center space-x-4 border-b pb-4 border-gray-100 last:border-0">
-                        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="w-16 h-16 object-cover rounded shadow-sm">
-                        <div class="flex-1">
-                            <h4 class="font-serif text-sm font-bold text-brand-black">${escapeHtml(item.name)}</h4>
-                            <p class="text-xs text-gray-500 mb-1">Color: ${escapeHtml(item.variant)}</p>
-                            <p class="text-xs text-brand-gold font-bold">${item.price} DH</p>
-                            <div class="flex items-center mt-2 space-x-2">
-                                <button onclick="updateQuantity('${escapeHtml(item.cartId)}', -1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">-</button>
-                                <span class="text-xs font-semibold w-4 text-center">${item.quantity}</span>
-                                <button onclick="updateQuantity('${escapeHtml(item.cartId)}', 1)" class="w-6 h-6 rounded-full bg-gray-100 text-xs">+</button>
-                            </div>
-                        </div>
-                        <div class="text-right flex flex-col justify-between h-16">
-                            <p class="font-bold text-sm">${item.price * item.quantity} DH</p>
-                            <button onclick="removeFromCart('${escapeHtml(item.cartId)}')" class="text-xs text-red-400 hover:text-red-600 transition underline"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            document.getElementById('cart-total').textContent = total + " DH";
-        }
-
-        function toggleCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.getElementById('cart-overlay');
-            sidebar.classList.toggle('translate-x-full');
-            overlay.classList.toggle('hidden');
-        }
-
-        function toggleMobileMenu() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        }
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const nav = document.getElementById('navbar');
-            const mobileMenu = document.getElementById('mobile-menu');
-            // Check if click is outside the navbar and the menu is NOT hidden
-            if (!nav.contains(event.target) && !mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.add('hidden');
-            }
-        });
-
-        // Keyboard navigation for modal images
-        document.addEventListener('keydown', function(event) {
-            const productModal = document.getElementById('product-modal');
-            if (productModal && productModal.classList.contains('active')) {
-                if (event.key === 'ArrowLeft') {
-                    navigateModalImage(-1);
-                } else if (event.key === 'ArrowRight') {
-                    navigateModalImage(1);
-                } else if (event.key === 'Escape') {
-                    closeModal();
-                }
-            }
-        });
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.querySelector('span').textContent = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
-        }
-
-        // --- CHECKOUT LOGIC (NEW) ---
-        
-        function openCheckoutModal() {
-            if (cart.length === 0) return showToast("Votre panier est vide!");
-            const modal = document.getElementById('checkout-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('active'); }, 10);
-            
-            // Close Cart sidebar to focus on checkout
-            toggleCart();
-        }
-
-        function closeCheckoutModal() {
-            const modal = document.getElementById('checkout-modal');
-            modal.classList.remove('active');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-        }
-
-        function finalizeOrder() {
-            const name = document.getElementById('checkout-name').value;
-            const phone = document.getElementById('checkout-phone').value;
-            const city = document.getElementById('checkout-city').value;
-            const address = document.getElementById('checkout-address').value;
-
-            if (!name || !phone || !city || !address) {
-                alert("Merci de remplir toutes les informations / المرجو ملء جميع المعلومات");
-                return;
-            }
-
-            const phoneNum = "<?php echo $settings['whatsapp_number']; ?>";
-            let msg = `👋 *NOUVELLE COMMANDE / طلب جديد* \n`;
-            msg += `--------------------------------\n`;
-            msg += `👤 *Client:* ${name}\n`;
-            msg += `📱 *Tel:* ${phone}\n`;
-            msg += `🏙️ *Ville:* ${city}\n`;
-            msg += `📍 *Adresse:* ${address}\n`;
-            msg += `--------------------------------\n\n`;
-            msg += `*ARTICLES:*\n`;
-
-            let total = 0;
-            cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                if (item.isBundle) {
-                    msg += `📦 *${item.name}* x${item.quantity} - ${itemTotal} <?php echo $settings['currency']; ?>\n`;
-                    msg += `   ├ ${item.items[0].name}\n`;
-                    msg += `   └ ${item.items[1].name}\n`;
-                } else {
-                    msg += `▪️ ${item.name} (${item.variant}) x${item.quantity} - ${itemTotal} <?php echo $settings['currency']; ?>\n`;
-                }
-                total += itemTotal;
-            });
-            msg += `\n💰 *TOTAL: ${total} <?php echo $settings['currency']; ?>*`;
-            
-            // Close modal
-            closeCheckoutModal();
-            
-            // Send to WhatsApp
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNum}&text=${encodeURIComponent(msg)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        // Initialize
-        document.getElementById('load-more-btn').addEventListener('click', () => {
-            visibleProducts += 4;
-            renderProducts();
-        });
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            window.scrollY > 50 ? nav.classList.add('shadow-md') : nav.classList.remove('shadow-md');
-        });
-
-        // Deep Linking - Open product from URL parameter
-        // Usage: ?product=ID or ?product=ID&type=pack (for promo packs)
-        // Examples:
-        //   ?product=1 - Opens product ID 1 (auto-detects type)
-        //   ?product=101&type=pack - Opens promo pack ID 101
-        //   ?product=201&type=new - Opens from Nouveautés
         function checkDeepLink() {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('product');
-            const productType = urlParams.get('type') || 'auto'; // auto, collection, new, pack
+            const productType = urlParams.get('type') || 'auto';
             
             if (productId) {
                 const id = parseInt(productId);
                 let foundType = null;
                 let product = null;
                 
-                // If type is specified, search in that collection first
                 if (productType === 'pack') {
                     product = promoPacks.find(p => p.id === id);
                     if (product) foundType = 'pack';
@@ -1418,65 +781,50 @@ if (!file_exists($productsFile)) {
                     if (product) foundType = 'collection';
                 }
                 
-                // Auto-search in all collections if not found or type is 'auto'
                 if (!product) {
-                    // Search by ID range convention: 1-99 = collection, 100-199 = packs, 200+ = new
-                    if (id >= 100 && id < 200) {
-                        product = promoPacks.find(p => p.id === id);
-                        if (product) foundType = 'pack';
-                    }
-                    if (!product && id >= 200) {
-                        product = newArrivals.find(p => p.id === id);
-                        if (product) foundType = 'new';
-                    }
-                    if (!product) {
-                        product = allProducts.find(p => p.id === id);
-                        if (product) foundType = 'collection';
-                    }
-                    if (!product) {
-                        product = newArrivals.find(p => p.id === id);
-                        if (product) foundType = 'new';
-                    }
-                    if (!product) {
-                        product = promoPacks.find(p => p.id === id);
-                        if (product) foundType = 'pack';
-                    }
+                    product = allProducts.find(p => p.id === id);
+                    if (product) foundType = 'collection';
+                }
+                if (!product) {
+                    product = newArrivals.find(p => p.id === id);
+                    if (product) foundType = 'new';
+                }
+                if (!product) {
+                    product = promoPacks.find(p => p.id === id);
+                    if (product) foundType = 'pack';
                 }
                 
                 if (product && foundType) {
-                    // Small delay to ensure page is fully loaded
-                    setTimeout(() => {
-                        openModal(id, foundType);
-                    }, 300);
+                    setTimeout(() => { openModal(id, foundType); }, 300);
                 }
             }
         }
-        
-        // Update URL when opening a product (for sharing)
-        function updateUrlForProduct(id, type) {
-            const url = new URL(window.location);
-            url.searchParams.set('product', id);
-            url.searchParams.set('type', type);
-            window.history.replaceState({}, '', url);
-        }
-        
-        // Clear URL when closing modal
-        function clearProductUrl() {
-            const url = new URL(window.location);
-            url.searchParams.delete('product');
-            url.searchParams.delete('type');
-            window.history.replaceState({}, '', url);
-        }
 
-        // Run
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            const productModal = document.getElementById('product-modal');
+            if (productModal && productModal.classList.contains('active')) {
+                if (event.key === 'ArrowLeft') navigateModalImage(-1);
+                else if (event.key === 'ArrowRight') navigateModalImage(1);
+                else if (event.key === 'Escape') closeModal();
+            }
+        });
+
+        // Load more button
+        document.getElementById('load-more-btn').addEventListener('click', () => {
+            visibleProducts += 4;
+            renderProducts();
+        });
+
+        // Initialize
         startCountdown();
         renderProducts();
-        renderNewArrivals(); 
+        renderNewArrivals();
         renderPacks();
-        updateCartUI();
-        
-        // Check for deep link after content is loaded
         checkDeepLink();
     </script>
-</body>
-</html>
+
+<?php
+// Include footer
+require_once SWIS_ROOT . '/includes/partials/footer.php';
+?>

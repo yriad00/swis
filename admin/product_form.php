@@ -1,8 +1,14 @@
 <?php
-require_once 'auth.php';
+/**
+ * Swis Brands - Product Form (Add/Edit)
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
 
-$jsonData = file_get_contents('../data/products.json');
-$data = json_decode($jsonData, true);
+require_once __DIR__ . '/../includes/admin-bootstrap.php';
+
+$data = getProductsData();
 
 $id = $_GET['id'] ?? null;
 $type = $_GET['type'] ?? 'allProducts';

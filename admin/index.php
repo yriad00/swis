@@ -1,17 +1,21 @@
 <?php
-require_once 'auth.php';
+/**
+ * Swis Brands - Admin Dashboard
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
+
+require_once __DIR__ . '/../includes/admin-bootstrap.php';
 
 // Ensure correct base URL for relative links if accessed without trailing slash
 if (basename($_SERVER['PHP_SELF']) == 'index.php' && 
     strpos($_SERVER['REQUEST_URI'], '.php') === false && 
     substr($_SERVER['REQUEST_URI'], -1) != '/') {
-    header("Location: " . $_SERVER['REQUEST_URI'] . "/");
-    exit;
+    redirect($_SERVER['REQUEST_URI'] . "/");
 }
 
-$jsonData = file_get_contents('../data/products.json');
-$data = json_decode($jsonData, true);
-
+$data = getProductsData();
 $newArrivals = $data['newArrivals'];
 $allProducts = $data['allProducts'];
 $promoPacks = $data['promoPacks'];
@@ -45,7 +49,7 @@ $promoPacks = $data['promoPacks'];
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Stats Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                     <dt class="text-sm font-medium text-gray-500 truncate">Total Produits</dt>
@@ -67,7 +71,13 @@ $promoPacks = $data['promoPacks'];
             <div class="bg-white overflow-hidden shadow rounded-lg cursor-pointer hover:bg-gray-50 transition" onclick="window.location.href='settings.php'">
                 <div class="px-4 py-5 sm:p-6 flex flex-col items-center justify-center h-full">
                     <i class="fas fa-cog text-3xl text-gray-400 mb-2"></i>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Paramètres Site</dt>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Paramètres</dt>
+                </div>
+            </div>
+            <div class="bg-white overflow-hidden shadow rounded-lg cursor-pointer hover:bg-purple-50 transition" onclick="window.location.href='tracking.php'">
+                <div class="px-4 py-5 sm:p-6 flex flex-col items-center justify-center h-full">
+                    <i class="fas fa-chart-line text-3xl text-purple-400 mb-2"></i>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Tracking & Pixels</dt>
                 </div>
             </div>
         </div>

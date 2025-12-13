@@ -1,97 +1,53 @@
 <?php
-// Security Headers - prevent MIME sniffing, clickjacking, XSS
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: SAMEORIGIN');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
+/**
+ * Swis Brands - Product Detail Page
+ * Individual product page with SEO optimization
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
 
-// Load settings with error handling
-$settingsFile = 'data/settings.json';
-if (!file_exists($settingsFile)) {
-    header("HTTP/1.0 500 Internal Server Error");
-    echo "Configuration error";
-    exit;
-}
-$settings = json_decode(file_get_contents($settingsFile), true);
-if ($settings === null) {
-    header("HTTP/1.0 500 Internal Server Error");
-    echo "Configuration error";
-    exit;
-}
+// Initialize application
+require_once __DIR__ . '/includes/bootstrap.php';
 
-// Load products with error handling
-$productsFile = 'data/products.json';
-if (!file_exists($productsFile)) {
-    header("HTTP/1.0 500 Internal Server Error");
-    echo "Products data not found";
-    exit;
-}
-$jsonData = file_get_contents($productsFile);
-$data = json_decode($jsonData, true);
-if ($data === null) {
-    header("HTTP/1.0 500 Internal Server Error");
-    echo "Invalid products data";
-    exit;
-}
+// Get product ID
+$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
-$id = $_GET['id'] ?? null;
-$product = null;
-$type = 'collection';
-
-// Search for product in all categories
-if ($id) {
-    foreach ($data['newArrivals'] as $p) {
-        if ($p['id'] == $id) {
-            $product = $p;
-            $type = 'new';
-            break;
-        }
-    }
-    if (!$product) {
-        foreach ($data['allProducts'] as $p) {
-            if ($p['id'] == $id) {
-                $product = $p;
-                $type = 'collection';
-                break;
-            }
-        }
-    }
-    if (!$product) {
-        foreach ($data['promoPacks'] as $p) {
-            if ($p['id'] == $id) {
-                $product = $p;
-                $type = 'pack';
-                break;
-            }
-        }
-    }
-}
-
-if (!$product) {
-    header("HTTP/1.0 404 Not Found");
+if (!$id) {
+    http_response_code(404);
     echo "Produit non trouvé / Product not found";
     exit;
 }
 
-// Prepare Dynamic Meta Data
-$pageTitle = htmlspecialchars($product['name']) . " - " . htmlspecialchars($settings['site_title']);
-$pageDesc = "Achetez " . htmlspecialchars($product['name']) . ". " . ($product['description'] ?? "Montre de luxe pour femme au Maroc. Qualité premium et livraison gratuite.");
-$pageKeywords = "montre femme, " . htmlspecialchars($product['name']) . ", " . htmlspecialchars($product['category']) . ", luxe maroc";
-$currentPrice = ($type === 'pack') ? $product['newPrice'] : $product['price'];
-$oldPrice = ($type === 'pack') ? $product['oldPrice'] : ($product['oldPrice'] ?? null);
+// Find product
+$result = findProductById($id);
 
-// Fix image URL - handle both absolute and relative paths
-$productImage = $product['image'];
-if (strpos($productImage, 'http') === 0) {
-    $imageUrl = $productImage;
-} elseif (strpos($productImage, '/') === 0) {
-    // Relative path starting with / - prepend domain
-    $imageUrl = "https://swisbrands.ma" . $productImage;
-} else {
-    // Relative path without leading / - prepend domain and /
-    $imageUrl = "https://swisbrands.ma/" . $productImage;
+if (!$result) {
+    http_response_code(404);
+    echo "Produit non trouvé / Product not found";
+    exit;
 }
 
+$product = $result['product'];
+$type = $result['type'];
+$settings = getSettings();
+
+// Prepare Dynamic Meta Data
+$pageTitle = sanitize($product['name']) . " - " . sanitize($settings['site_title'] ?? 'Swis Brands');
+$pageDescription = "Achetez " . sanitize($product['name']) . ". " . ($product['description'] ?? "Montre de luxe pour femme au Maroc. Qualité premium et livraison gratuite.");
+$pageKeywords = "montre femme, " . sanitize($product['name']) . ", " . sanitize($product['category']) . ", luxe maroc";
+
+// Handle pricing
+$currentPrice = ($type === 'pack') ? ($product['newPrice'] ?? $product['price']) : $product['price'];
+$oldPrice = $product['oldPrice'] ?? null;
+
+// Build image URL
+$pageImage = getImageUrl($product['image']);
+$pageUrl = SITE_URL . '/product.php?id=' . $id;
+
+// Get tracking configuration for ViewContent event
+$tracking = getTrackingConfig();
+$viewContentEvent = fbPixelViewContent($id, $product['name'], (float)$currentPrice);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -99,23 +55,34 @@ if (strpos($productImage, 'http') === 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- 2. Dynamic Meta Tags -->
+    <!-- SEO Meta Tags -->
     <title><?php echo $pageTitle; ?></title>
-    <meta name="description" content="<?php echo $pageDesc; ?>">
+    <meta name="description" content="<?php echo $pageDescription; ?>">
     <meta name="keywords" content="<?php echo $pageKeywords; ?>">
+    <link rel="canonical" href="<?php echo sanitize($pageUrl); ?>">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="<?php echo $pageTitle; ?>">
-    <meta property="og:description" content="<?php echo $pageDesc; ?>">
-    <meta property="og:image" content="<?php echo $imageUrl; ?>">
-    <meta property="og:url" content="https://swisbrands.ma/product.php?id=<?php echo $id; ?>">
     <meta property="og:type" content="product">
+    <meta property="og:title" content="<?php echo $pageTitle; ?>">
+    <meta property="og:description" content="<?php echo $pageDescription; ?>">
+    <meta property="og:image" content="<?php echo sanitize($pageImage); ?>">
+    <meta property="og:url" content="<?php echo sanitize($pageUrl); ?>">
+    <meta property="og:site_name" content="Swis Brands">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo $pageTitle; ?>">
+    <meta name="twitter:description" content="<?php echo $pageDescription; ?>">
+    <meta name="twitter:image" content="<?php echo sanitize($pageImage); ?>">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/logo_swis_rm.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <script>
@@ -142,35 +109,32 @@ if (strpos($productImage, 'http') === 0) {
         }
     </script>
 
-    <!-- 3. Structured Data (Schema.org) -->
+    <!-- Structured Data (Schema.org) -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org/",
-      "@type": "Product",
-      "name": "<?php echo htmlspecialchars($product['name']); ?>",
-      "image": [
-        "<?php echo $imageUrl; ?>"
-       ],
-      "description": "<?php echo htmlspecialchars($pageDesc); ?>",
-      "sku": "<?php echo $product['id']; ?>",
-      "brand": {
-        "@type": "Brand",
-        "name": "Swis Brands"
-      },
-      "offers": {
-        "@type": "Offer",
-        "url": "https://swisbrands.ma/product.php?id=<?php echo $id; ?>",
-        "priceCurrency": "MAD",
-        "price": "<?php echo $currentPrice; ?>",
-        "priceValidUntil": "2026-12-31",
-        "itemCondition": "https://schema.org/NewCondition",
-        "availability": "https://schema.org/InStock"
-      }
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "<?php echo sanitize($product['name']); ?>",
+        "image": ["<?php echo sanitize($pageImage); ?>"],
+        "description": "<?php echo sanitize($pageDescription); ?>",
+        "sku": "<?php echo $product['id']; ?>",
+        "brand": {
+            "@type": "Brand",
+            "name": "Swis Brands"
+        },
+        "offers": {
+            "@type": "Offer",
+            "url": "<?php echo sanitize($pageUrl); ?>",
+            "priceCurrency": "MAD",
+            "price": "<?php echo $currentPrice; ?>",
+            "priceValidUntil": "<?php echo date('Y-12-31'); ?>",
+            "itemCondition": "https://schema.org/NewCondition",
+            "availability": "https://schema.org/InStock"
+        }
     }
     </script>
     
     <style>
-        /* Reuse styles from index.php */
         .glass-nav {
             background: rgba(255, 255, 255, 0.90);
             backdrop-filter: blur(12px);
@@ -190,16 +154,19 @@ if (strpos($productImage, 'http') === 0) {
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
     </style>
+    
+    <!-- Tracking Pixels -->
+    <?php echo renderPixels(); ?>
 </head>
 <body class="font-sans text-brand-black bg-white antialiased">
 
-    <!-- Navbar (Simplified) -->
+    <!-- Navbar -->
     <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-24">
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/" class="flex flex-col items-center">
-                        <img src="images/logo_swis_rm.png" alt="Swis Brands Logo" class="h-28 md:h-28 w-auto object-contain">
+                        <img src="/images/logo_swis_rm.png" alt="Swis Brands Logo" class="h-28 md:h-28 w-auto object-contain">
                     </a>
                 </div>
                 <div class="hidden md:flex flex-1 justify-center space-x-10 items-center">
@@ -216,21 +183,35 @@ if (strpos($productImage, 'http') === 0) {
             <!-- Image Side -->
             <div class="md:w-1/2">
                 <div class="relative rounded-2xl overflow-hidden shadow-lg bg-gray-100 aspect-w-1 aspect-h-1">
-                    <!-- 4. Image Optimization: Lazy Loading & Alt -->
-                    <img id="main-image" src="<?php echo $product['image']; ?>" alt="<?php echo htmlspecialchars($product['name']); ?> - Montre Femme Maroc" class="w-full h-full object-cover" loading="lazy">
+                    <img id="main-image" src="<?php echo sanitize($product['image']); ?>" 
+                         alt="<?php echo sanitize($product['name']); ?> - Montre Femme Maroc" 
+                         class="w-full h-full object-cover" loading="lazy">
                 </div>
+                
+                <?php if (!empty($product['gallery'])): ?>
+                <div class="flex gap-2 mt-4 overflow-x-auto">
+                    <div class="w-20 h-20 rounded-lg overflow-hidden cursor-pointer border-2 border-brand-gold flex-shrink-0" onclick="changeMainImage('<?php echo sanitize($product['image']); ?>')">
+                        <img src="<?php echo sanitize($product['image']); ?>" class="w-full h-full object-cover" alt="Main">
+                    </div>
+                    <?php foreach($product['gallery'] as $galleryImg): ?>
+                    <div class="w-20 h-20 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-brand-gold flex-shrink-0" onclick="changeMainImage('<?php echo sanitize($galleryImg); ?>')">
+                        <img src="<?php echo sanitize($galleryImg); ?>" class="w-full h-full object-cover" alt="Gallery">
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Details Side -->
             <div class="md:w-1/2 flex flex-col">
-                <span class="text-brand-gold font-bold uppercase tracking-widest text-sm mb-2"><?php echo htmlspecialchars($product['category']); ?></span>
-                <h1 class="text-4xl md:text-5xl font-serif font-bold text-brand-black mb-2"><?php echo htmlspecialchars($product['name']); ?></h1>
-                <h2 class="text-2xl font-arabic text-gray-500 mb-6 text-right" dir="rtl"><?php echo htmlspecialchars($product['arabicName']); ?></h2>
+                <span class="text-brand-gold font-bold uppercase tracking-widest text-sm mb-2"><?php echo sanitize($product['category']); ?></span>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-brand-black mb-2"><?php echo sanitize($product['name']); ?></h1>
+                <h2 class="text-2xl font-arabic text-gray-500 mb-6 text-right" dir="rtl"><?php echo sanitize($product['arabicName']); ?></h2>
                 
                 <div class="flex items-center gap-4 mb-8">
-                    <span class="text-4xl font-bold text-brand-black"><?php echo $currentPrice; ?> DH</span>
+                    <span class="text-4xl font-bold text-brand-black"><?php echo $currentPrice; ?> <?php echo sanitize($settings['currency'] ?? 'DH'); ?></span>
                     <?php if($oldPrice): ?>
-                        <span class="text-xl text-gray-400 line-through"><?php echo $oldPrice; ?> DH</span>
+                        <span class="text-xl text-gray-400 line-through"><?php echo $oldPrice; ?> <?php echo sanitize($settings['currency'] ?? 'DH'); ?></span>
                     <?php endif; ?>
                 </div>
 
@@ -246,13 +227,13 @@ if (strpos($productImage, 'http') === 0) {
                         <?php foreach($product['variants'] as $index => $variant): ?>
                             <div onclick="selectVariant(<?php echo $index; ?>)" 
                                  class="variant-option cursor-pointer rounded-lg overflow-hidden w-16 h-16 relative shadow-sm hover:shadow-md <?php echo $index === 0 ? 'selected' : ''; ?>"
-                                 data-image="<?php echo $variant['image']; ?>"
-                                 data-name="<?php echo $variant['name']; ?>">
-                                <img src="<?php echo $variant['image']; ?>" class="w-full h-full object-cover" alt="<?php echo $variant['name']; ?>">
+                                 data-image="<?php echo sanitize($variant['image']); ?>"
+                                 data-name="<?php echo sanitize($variant['name']); ?>">
+                                <img src="<?php echo sanitize($variant['image']); ?>" class="w-full h-full object-cover" alt="<?php echo sanitize($variant['name']); ?>">
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <p class="mt-2 text-sm text-gray-500">Sélectionné: <span id="selected-variant-name" class="font-bold text-brand-black"><?php echo $product['variants'][0]['name']; ?></span></p>
+                    <p class="mt-2 text-sm text-gray-500">Sélectionné: <span id="selected-variant-name" class="font-bold text-brand-black"><?php echo sanitize($product['variants'][0]['name']); ?></span></p>
                 </div>
                 <?php endif; ?>
 
@@ -264,6 +245,26 @@ if (strpos($productImage, 'http') === 0) {
                     </button>
                     <a href="/" class="block text-center text-gray-500 hover:text-brand-black underline text-sm">Retour à l'accueil</a>
                 </div>
+                
+                <!-- Features -->
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>En Stock</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-truck text-brand-gold"></i>
+                        <span>Livraison Gratuite</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-shield-alt text-brand-gold"></i>
+                        <span>Qualité Garantie</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-hand-holding-usd text-brand-gold"></i>
+                        <span>Paiement à la Livraison</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -271,13 +272,16 @@ if (strpos($productImage, 'http') === 0) {
     <!-- Footer -->
     <footer class="bg-brand-black text-white py-12 border-t-4 border-brand-gold mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-400 text-sm">&copy; 2026 Swis Brands. All rights reserved.</p>
+            <p class="text-gray-400 text-sm">&copy; <?php echo date('Y'); ?> Swis Brands. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        const product = <?php echo json_encode($product); ?>;
-        const settings = <?php echo json_encode($settings); ?>;
+        const product = <?php echo safeJsonEncode($product); ?>;
+        const settings = {
+            whatsappNumber: '<?php echo sanitize($settings['whatsapp_number'] ?? ''); ?>',
+            currency: '<?php echo sanitize($settings['currency'] ?? 'DH'); ?>'
+        };
         let currentVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
 
         function selectVariant(index) {
@@ -290,12 +294,24 @@ if (strpos($productImage, 'http') === 0) {
             document.getElementById('selected-variant-name').textContent = currentVariant.name;
         }
 
+        function changeMainImage(src) {
+            document.getElementById('main-image').src = src;
+        }
+
         function openWhatsApp() {
-            const phone = settings.whatsapp_number;
+            const phone = settings.whatsappNumber;
             const variantName = currentVariant ? currentVariant.name : "Standard";
-            const text = `Bonjour, je veux commander: ${product.name} (${variantName}) - <?php echo $currentPrice; ?> DH`;
+            const text = `Bonjour, je veux commander: ${product.name} (${variantName}) - <?php echo $currentPrice; ?> ${settings.currency}`;
             window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`, '_blank');
         }
+
+        // Track ViewContent event
+        <?php if ($viewContentEvent): ?>
+        <?php echo $viewContentEvent; ?>
+        <?php endif; ?>
     </script>
+    
+    <!-- Custom Body Scripts -->
+    <?php echo renderBodyScripts(); ?>
 </body>
 </html>

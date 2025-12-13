@@ -1,3 +1,14 @@
+# Swis Brands - Robots.txt
+# Version 2.0.0
+
 User-agent: *
 Allow: /
+
+# Disallow admin and sensitive areas
+Disallow: /admin/
+Disallow: /data/
+Disallow: /includes/
+Disallow: /uploads/*.json
+
+# Sitemap
 Sitemap: https://swisbrands.ma/sitemap.php

@@ -1,16 +1,22 @@
 <?php
-require_once 'auth.php';
+/**
+ * Swis Brands - Delete Product
+ * Handles product deletion with image cleanup
+ * 
+ * @package SwissBrands
+ * @version 2.0.0
+ */
+
+require_once __DIR__ . '/../includes/admin-bootstrap.php';
 
 // Only accept POST requests for destructive actions
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: index.php');
-    exit;
+    redirect('index.php');
 }
 
 // Validate CSRF token
 if (!validateCsrfToken()) {
-    header('Location: index.php?error=csrf');
-    exit;
+    redirect('index.php?error=csrf');
 }
 
 $id = $_POST['id'] ?? null;
@@ -20,20 +26,7 @@ $type = $_POST['type'] ?? null;
 $allowedTypes = ['newArrivals', 'allProducts', 'promoPacks'];
 
 if ($id && $type && in_array($type, $allowedTypes, true)) {
-    $jsonFile = '../data/products.json';
-    
-    if (!file_exists($jsonFile)) {
-        header('Location: index.php?error=file_not_found');
-        exit;
-    }
-    
-    $jsonData = file_get_contents($jsonFile);
-    $data = json_decode($jsonData, true);
-    
-    if ($data === null) {
-        header('Location: index.php?error=invalid_json');
-        exit;
-    }
+    $data = getProductsData();
 
     if (isset($data[$type])) {
         $originalCount = count($data[$type]);
@@ -41,27 +34,23 @@ if ($id && $type && in_array($type, $allowedTypes, true)) {
             if ($p['id'] == $id) {
                 // Delete main image
                 if (!empty($p['image'])) {
-                    $imagePath = __DIR__ . '/..' . $p['image'];
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
-                    }
+                    deleteUploadedFile($p['image']);
                 }
                 // Delete gallery images
                 if (!empty($p['gallery'])) {
                     foreach ($p['gallery'] as $galleryImg) {
-                        $galleryPath = __DIR__ . '/..' . $galleryImg;
-                        if (file_exists($galleryPath)) {
-                            unlink($galleryPath);
-                        }
+                        deleteUploadedFile($galleryImg);
                     }
                 }
                 // Delete variant images
                 if (!empty($p['variants'])) {
                     foreach ($p['variants'] as $variant) {
                         if (!empty($variant['image'])) {
-                            $variantPath = __DIR__ . '/..' . $variant['image'];
-                            if (file_exists($variantPath)) {
-                                unlink($variantPath);
+                            deleteUploadedFile($variant['image']);
+                        }
+                        if (!empty($variant['gallery'])) {
+                            foreach ($variant['gallery'] as $vGalleryImg) {
+                                deleteUploadedFile($vGalleryImg);
                             }
                         }
                     }
@@ -75,11 +64,10 @@ if ($id && $type && in_array($type, $allowedTypes, true)) {
         
         // Only write if something was actually deleted
         if (count($data[$type]) < $originalCount) {
-            file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            saveJsonFile(PRODUCTS_FILE, $data);
         }
     }
 }
 
-header('Location: index.php');
-exit;
+redirect('index.php');
 ?>
